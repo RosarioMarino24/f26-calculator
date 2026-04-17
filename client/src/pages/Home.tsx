@@ -128,8 +128,12 @@ export default function Home() {
       content: (
         <div className="space-y-4">
           <div className="bg-green-50 p-4 rounded-lg border-2 border-green-300">
-            <p className="font-bold text-green-900 text-lg">TAG 1</p>
-            <p className="text-green-700 text-sm mt-2">Einsparung beginnt sofort.</p>
+            <p className="font-bold text-green-900 text-lg">✓ AMORTISATION: TAG 1</p>
+            <p className="text-green-700 text-sm mt-2">Es gibt KEINE Investition – daher keine Amortisationsfrist. Sie sparen sofort ab Tag 1.</p>
+            <p className="text-green-700 text-sm mt-3 font-semibold">Andere Lösungen: 3-5 Jahre Amortisation. F26: 0 Tage.</p>
+          </div>
+          <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+            <p className="text-blue-900 text-sm"><strong>Beispiel:</strong> Bei 3.000€/Monat Stromrechnung: 600€/Monat Einsparung = 7.200€/Jahr sofort in Ihrer Tasche!</p>
           </div>
         </div>
       ),
@@ -142,7 +146,12 @@ export default function Home() {
       content: (
         <div className="space-y-4">
           <div className="bg-green-50 p-4 rounded-lg border-2 border-green-300">
-            <p className="font-bold text-green-900 text-lg">F26 IST INTELLIGENTER</p>
+            <p className="font-bold text-green-900 text-lg">✓ F26 IST INTELLIGENTER</p>
+            <p className="text-green-700 text-sm mt-2">Alte Anlagen arbeiten statisch. F26 passt sich AUTOMATISCH an Ihre Netzlast an.</p>
+            <p className="text-green-700 text-sm mt-3 font-semibold">Verbesserung: cos ϕ von 0,86 → 0,97 (11 Punkte besser!)</p>
+          </div>
+          <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+            <p className="text-blue-900 text-sm"><strong>Ergebnis:</strong> 15-30% zusätzliche Einsparung gegenüber älteren Systemen. Das rechnet sich!</p>
           </div>
         </div>
       ),
@@ -155,7 +164,12 @@ export default function Home() {
       content: (
         <div className="space-y-4">
           <div className="bg-green-50 p-4 rounded-lg border-2 border-green-300">
-            <p className="font-bold text-green-900 text-lg">7-TAGE-NETZANALYSE</p>
+            <p className="font-bold text-green-900 text-lg">✓ KOSTENLOSE 7-TAGE-NETZANALYSE</p>
+            <p className="text-green-700 text-sm mt-2">Wir messen Ihre echten Daten. Keine Schätzungen, keine Versprechen – nur Fakten.</p>
+            <p className="text-green-700 text-sm mt-3 font-semibold">Nach 7 Tagen wissen Sie GENAU, wie viel Sie sparen.</p>
+          </div>
+          <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+            <p className="text-blue-900 text-sm"><strong>Vorteil:</strong> Null Risiko. Sie sehen die Messwerte live. Dann entscheiden Sie.</p>
           </div>
         </div>
       ),
@@ -168,7 +182,12 @@ export default function Home() {
       content: (
         <div className="space-y-4">
           <div className="bg-green-50 p-4 rounded-lg border-2 border-green-300">
-            <p className="font-bold text-green-900 text-lg">WIR KÜMMERN UNS UM ALLES</p>
+            <p className="font-bold text-green-900 text-lg">✓ WIR KÜMMERN UNS UM ALLES</p>
+            <p className="text-green-700 text-sm mt-2">Planung, Installation, Inbetriebnahme, 24/7 Überwachung – alles inklusive.</p>
+            <p className="text-green-700 text-sm mt-3 font-semibold">Sie müssen NICHTS tun. Wir machen den Rest.</p>
+          </div>
+          <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+            <p className="text-blue-900 text-sm"><strong>Leistungsumfang:</strong> Netzanalyse, Planung, Installation, Schulung, 24/7 Support, 5 Jahre Garantie.</p>
           </div>
         </div>
       ),
@@ -181,7 +200,12 @@ export default function Home() {
       content: (
         <div className="space-y-4">
           <div className="bg-green-50 p-4 rounded-lg border-2 border-green-300">
-            <p className="font-bold text-green-900 text-lg">ZERTIFIZIERT</p>
+            <p className="font-bold text-green-900 text-lg">✓ ZERTIFIZIERT & GEPRÜFT</p>
+            <p className="text-green-700 text-sm mt-2">IEC 61000-4-30 Klasse A | VDE-AR-N 4110 | EN 50160 | Made in Germany</p>
+            <p className="text-green-700 text-sm mt-3 font-semibold">5 Jahre Garantie. Vollständig versichert.</p>
+          </div>
+          <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+            <p className="text-blue-900 text-sm"><strong>Sicherheit:</strong> Wir sind seit 15+ Jahren im Markt. Über 500 erfolgreiche Installationen.</p>
           </div>
         </div>
       ),
@@ -194,7 +218,12 @@ export default function Home() {
       content: (
         <div className="space-y-4">
           <div className="bg-green-50 p-4 rounded-lg border-2 border-green-300">
-            <p className="font-bold text-green-900 text-lg">ALLE STANDARDS ERFÜLLT</p>
+            <p className="font-bold text-green-900 text-lg">✓ ALLE STANDARDS ERFÜLLT</p>
+            <p className="text-green-700 text-sm mt-2">VDE-AR-N 4110 | EN 50160 | TAR Drehstrom | Alle Netzanbieter genehmigen F26.</p>
+            <p className="text-green-700 text-sm mt-3 font-semibold">Wir kümmern uns um die Genehmigung. Sie nicht.</p>
+          </div>
+          <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+            <p className="text-blue-900 text-sm"><strong>Prozess:</strong> Wir reichen die Unterlagen ein. Netzanbieter genehmigt. Fertig.</p>
           </div>
         </div>
       ),
@@ -910,23 +939,26 @@ export default function Home() {
                   <p className="font-bold text-slate-900">Unterschrift des Kunden:</p>
                   
                   <div className="w-full border-2 border-slate-300 rounded-lg bg-white p-2">
-                    <SignatureCanvas
-                      ref={signatureRef}
-                      canvasProps={{
-                        width: 500,
-                        height: 150,
-                        className: "w-full border border-slate-200 rounded cursor-crosshair",
-                        style: { 
-                          touchAction: "none",
-                          display: "block",
-                          backgroundColor: "white"
-                        },
-                      }}
-                      onEnd={handleSignature}
-                      penColor="#000"
-                      throttle={5}
-                      velocityFilterWeight={0.7}
-                    />
+                <SignatureCanvas
+                  ref={signatureRef}
+                  canvasProps={{
+                    width: 800,
+                    height: 200,
+                    className: "w-full border border-slate-200 rounded cursor-crosshair",
+                    style: { 
+                      touchAction: "none",
+                      display: "block",
+                      backgroundColor: "white",
+                      maxWidth: "100%",
+                      height: "auto"
+                    },
+                  }}
+                  onEnd={handleSignature}
+                  penColor="#000"
+                  throttle={3}
+                  velocityFilterWeight={0.7}
+                  dotSize={2}
+                />
                   </div>
                   
                   <div className="flex gap-3">
