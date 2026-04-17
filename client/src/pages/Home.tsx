@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowRight, AlertCircle, CheckCircle2, TrendingUp, Shield, Zap, X, MapPin } from "lucide-react";
+import { ArrowRight, AlertCircle, CheckCircle2, TrendingUp, Shield, Zap, X, MapPin, ToggleLeft, ToggleRight } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import SignatureCanvas from "react-signature-canvas";
 import jsPDF from "jspdf";
@@ -33,8 +33,10 @@ export default function Home() {
   const [kundenUnternehmen, setKundenUnternehmen] = useState("");
   const [kundenAdresse, setKundenAdresse] = useState("");
   const [kundenEmail, setKundenEmail] = useState("");
+  const [inputMode, setInputMode] = useState<"stromrechnung" | "verbrauch">("stromrechnung");
   const [stromrechnung, setStromrechnung] = useState<number>(3000);
   const [strompreis, setStrompreis] = useState<number>(0.25);
+  const [stromverbrauchKwh, setStromverbrauchKwh] = useState<number>(12000);
   const [showMapPicker, setShowMapPicker] = useState(false);
   
   // Vertrag & Modal
@@ -44,14 +46,20 @@ export default function Home() {
   const vertragModalRef = useRef<HTMLDivElement>(null);
   const [activeObjection, setActiveObjection] = useState<string | null>(null);
 
-  // Berechnungen
-  const monatlicheErsparnis = Math.round(stromrechnung * 0.2 * 100) / 100;
+  // Berechnungen basierend auf Input-Modus
+  const berechnetStromrechnung = inputMode === "stromrechnung" 
+    ? stromrechnung 
+    : Math.round(stromverbrauchKwh * strompreis * 100) / 100;
+  
+  const monatlicheErsparnis = Math.round(berechnetStromrechnung * 0.2 * 100) / 100;
   const jaehrlicheErsparnis = Math.round(monatlicheErsparnis * 12 * 100) / 100;
-  const stromverbrauch = Math.round((stromrechnung / strompreis) * 100) / 100;
+  const berechnetStromverbrauch = inputMode === "stromrechnung"
+    ? Math.round((stromrechnung / strompreis) * 100) / 100
+    : stromverbrauchKwh;
 
   // Echte Kundendaten-Visualisierungen
   const monthlyData = Array.from({ length: 12 }, (_, i) => {
-    const baseWithout = stromrechnung * (0.9 + Math.random() * 0.2);
+    const baseWithout = berechnetStromrechnung * (0.9 + Math.random() * 0.2);
     return {
       month: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"][i],
       ohne: Math.round(baseWithout),
@@ -304,7 +312,32 @@ export default function Home() {
         <main className="max-w-7xl mx-auto px-4 py-8">
           {/* Kundendaten-Formular */}
           <Card className="p-6 border-0 shadow-lg mb-8 bg-gradient-to-r from-blue-50 to-slate-50">
-            <h2 className="text-xl font-bold text-slate-900 mb-4">Kundendaten</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-slate-900">Kundendaten</h2>
+              <div className="flex items-center gap-3 bg-white rounded-lg p-2 border-2 border-slate-200">
+                <button
+                  onClick={() => setInputMode("stromrechnung")}
+                  className={`px-3 py-1 rounded font-semibold text-sm transition-all ${
+                    inputMode === "stromrechnung"
+                      ? "bg-blue-600 text-white"
+                      : "text-slate-600 hover:bg-slate-100"
+                  }`}
+                >
+                  Stromrechnung
+                </button>
+                <div className="w-px h-6 bg-slate-300"></div>
+                <button
+                  onClick={() => setInputMode("verbrauch")}
+                  className={`px-3 py-1 rounded font-semibold text-sm transition-all ${
+                    inputMode === "verbrauch"
+                      ? "bg-blue-600 text-white"
+                      : "text-slate-600 hover:bg-slate-100"
+                  }`}
+                >
+                  Verbrauch + Preis
+                </button>
+              </div>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
                 <Label className="text-sm font-semibold text-slate-900 mb-2 block">Gesetzlicher Vertreter</Label>
@@ -344,28 +377,58 @@ export default function Home() {
                   </Button>
                 </div>
               </div>
-              <div>
-                <Label className="text-sm font-semibold text-slate-900 mb-2 block">Stromrechnung (€/Mo)</Label>
-                <Input
-                  value={stromrechnung}
-                  onChange={(e) => setStromrechnung(Number(e.target.value) || 0)}
-                  type="number"
-                  className="border-2 border-slate-200"
-                  min="0"
-                />
-              </div>
-              <div>
-                <Label className="text-sm font-semibold text-slate-900 mb-2 block">Strompreis (€/kWh)</Label>
-                <Input
-                  value={strompreis}
-                  onChange={(e) => setStrompreis(Number(e.target.value) || 0.25)}
-                  type="number"
-                  step="0.01"
-                  className="border-2 border-slate-200"
-                  min="0"
-                  placeholder="z.B. 0,25"
-                />
-              </div>
+              {inputMode === "stromrechnung" ? (
+                <>
+                  <div>
+                    <Label className="text-sm font-semibold text-slate-900 mb-2 block">Stromrechnung (€/Mo)</Label>
+                    <Input
+                      value={stromrechnung}
+                      onChange={(e) => setStromrechnung(Number(e.target.value) || 0)}
+                      type="number"
+                      className="border-2 border-slate-200"
+                      min="0"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-sm font-semibold text-slate-900 mb-2 block">Strompreis (€/kWh)</Label>
+                    <Input
+                      value={strompreis}
+                      onChange={(e) => setStrompreis(Number(e.target.value) || 0.25)}
+                      type="number"
+                      step="0.01"
+                      className="border-2 border-slate-200"
+                      min="0"
+                      placeholder="z.B. 0,25"
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <Label className="text-sm font-semibold text-slate-900 mb-2 block">Stromverbrauch (kWh/Mo)</Label>
+                    <Input
+                      value={stromverbrauchKwh}
+                      onChange={(e) => setStromverbrauchKwh(Number(e.target.value) || 0)}
+                      type="number"
+                      className="border-2 border-slate-200"
+                      min="0"
+                      placeholder="z.B. 12000"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-sm font-semibold text-slate-900 mb-2 block">Strompreis (€/kWh)</Label>
+                    <Input
+                      value={strompreis}
+                      onChange={(e) => setStrompreis(Number(e.target.value) || 0.25)}
+                      type="number"
+                      step="0.01"
+                      className="border-2 border-slate-200"
+                      min="0"
+                      placeholder="z.B. 0,25"
+                    />
+                  </div>
+                </>
+              )}
             </div>
           </Card>
 
