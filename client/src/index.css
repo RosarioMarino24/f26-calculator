@@ -43,39 +43,46 @@
 }
 
 :root {
-  --primary: var(--color-blue-700);
-  --primary-foreground: var(--color-blue-50);
-  --sidebar-primary: var(--color-blue-600);
-  --sidebar-primary-foreground: var(--color-blue-50);
-  --chart-1: var(--color-blue-300);
-  --chart-2: var(--color-blue-500);
-  --chart-3: var(--color-blue-600);
-  --chart-4: var(--color-blue-700);
-  --chart-5: var(--color-blue-800);
-  --radius: 0.65rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.235 0.015 65);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.235 0.015 65);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.235 0.015 65);
-  --secondary: oklch(0.98 0.001 286.375);
-  --secondary-foreground: oklch(0.4 0.015 65);
-  --muted: oklch(0.967 0.001 286.375);
-  --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
-  --accent-foreground: oklch(0.141 0.005 285.823);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.623 0.214 259.815);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.235 0.015 65);
-  --sidebar-accent: oklch(0.967 0.001 286.375);
-  --sidebar-accent-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-border: oklch(0.92 0.004 286.32);
-  --sidebar-ring: oklch(0.623 0.214 259.815);
+  /* F26 Energetic Minimalism - Design Tokens */
+  /* Primary: Dunkelblau (Vertrauen, Technologie) */
+  --primary: #192D55;
+  --primary-foreground: #F5F7FA;
+  --sidebar-primary: #1F3A6F;
+  --sidebar-primary-foreground: #F5F7FA;
+  
+  /* Accent: Elektro-Grün (Einsparung, Gewinn) */
+  --accent: #4CAF50;
+  --accent-foreground: #FFFFFF;
+  
+  /* Chart Colors: Grün-Palette für Einsparungen */
+  --chart-1: #81C784;
+  --chart-2: #66BB6A;
+  --chart-3: #4CAF50;
+  --chart-4: #43A047;
+  --chart-5: #388E3C;
+  
+  --radius: 0.5rem;
+  --background: #FFFFFF;
+  --foreground: #1A1A1A;
+  --card: #FFFFFF;
+  --card-foreground: #1A1A1A;
+  --popover: #FFFFFF;
+  --popover-foreground: #1A1A1A;
+  --secondary: #F5F7FA;
+  --secondary-foreground: #192D55;
+  --muted: #E8EEF5;
+  --muted-foreground: #6B7280;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --border: #E5E7EB;
+  --input: #F3F4F6;
+  --ring: #192D55;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #1A1A1A;
+  --sidebar-accent: #F5F7FA;
+  --sidebar-accent-foreground: #192D55;
+  --sidebar-border: #E5E7EB;
+  --sidebar-ring: #192D55;
 }
 
 .dark {
@@ -117,8 +124,22 @@
   * {
     @apply border-border outline-ring/50;
   }
+  
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+  }
+  
+  .text-display {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 3.5rem;
+    line-height: 1.1;
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
