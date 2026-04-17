@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowRight, AlertCircle, CheckCircle2, TrendingUp, Shield, Zap, X, MapPin, ToggleLeft, ToggleRight } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import SignatureCanvas from "react-signature-canvas";
+// Eigenes Canvas-System statt react-signature-canvas
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
@@ -44,9 +44,10 @@ export default function Home() {
   // Vertrag & Modal
   const [showVertragModal, setShowVertragModal] = useState(false);
   const [unterschriftGeleistet, setUnterschriftGeleistet] = useState(false);
-  const signatureRef = useRef<any>(null);
+  const signatureCanvasRef = useRef<HTMLCanvasElement>(null);
   const vertragModalRef = useRef<HTMLDivElement>(null);
   const [activeObjection, setActiveObjection] = useState<string | null>(null);
+  const [isDrawing, setIsDrawing] = useState(false);
 
   // Berechnungen basierend auf Input-Modus
   const berechnetStromrechnung = inputMode === "schnell" 
@@ -231,14 +232,77 @@ export default function Home() {
   ];
 
   const handleClearSignature = () => {
-    signatureRef.current?.clear();
+    const canvas = signatureCanvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
     setUnterschriftGeleistet(false);
   };
 
   const handleSignature = () => {
-    const canvas = signatureRef.current?.getCanvas();
-    if (canvas && canvas.toDataURL() !== "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==") {
-      setUnterschriftGeleistet(true);
+    const canvas = signatureCanvasRef.current;
+    if (canvas) {
+      const imageData = canvas.getContext('2d')?.getImageData(0, 0, canvas.width, canvas.height);
+      if (imageData && imageData.data.some(pixel => pixel !== 0)) {
+        setUnterschriftGeleistet(true);
+      }
+    }
+  };
+
+  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    setIsDrawing(true);
+    const canvas = signatureCanvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const clientX = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
+
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  };
+
+  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    if (!isDrawing) return;
+
+    const canvas = signatureCanvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const clientX = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
+
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = '#000';
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  };
+
+  const stopDrawing = () => {
+    setIsDrawing(false);
+    const canvas = signatureCanvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.closePath();
+      }
     }
   };
 
@@ -949,23 +1013,23 @@ export default function Home() {
                   <p className="font-bold text-slate-900">Unterschrift des Kunden:</p>
                   
                   <div className="w-full border-2 border-slate-300 rounded-lg bg-white p-2">
-                    <SignatureCanvas
-                      ref={signatureRef}
-                      canvasProps={{
-                        width: 600,
-                        height: 150,
-                        className: "w-full border border-slate-200 rounded cursor-crosshair",
-                        style: { 
-                          touchAction: "none",
-                          display: "block",
-                          backgroundColor: "white"
-                        },
+                    <canvas
+                      ref={signatureCanvasRef}
+                      width={600}
+                      height={150}
+                      className="w-full border border-slate-200 rounded cursor-crosshair block"
+                      style={{
+                        touchAction: "none",
+                        backgroundColor: "white",
+                        display: "block"
                       }}
-                      onEnd={handleSignature}
-                      penColor="#000"
-                      throttle={5}
-                      velocityFilterWeight={0.7}
-                      dotSize={1}
+                      onMouseDown={startDrawing}
+                      onMouseMove={draw}
+                      onMouseUp={stopDrawing}
+                      onMouseLeave={stopDrawing}
+                      onTouchStart={startDrawing}
+                      onTouchMove={draw}
+                      onTouchEnd={stopDrawing}
                     />
                   </div>
                   
