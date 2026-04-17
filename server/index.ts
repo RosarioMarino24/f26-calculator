@@ -20,9 +20,8 @@ async function startServer() {
       : path.resolve(__dirname, "..", "dist", "public");
 
   app.use(express.json());
-  app.use(express.static(staticPath));
 
-  // API: PDF-Generierung
+  // API: PDF-Generierung (MUSS vor static middleware registriert sein)
   app.post("/api/generate-contract", async (req, res) => {
     try {
       const { gesetzlicherVertreter, kundenAdresse, signatureImage } = req.body;
@@ -62,6 +61,9 @@ async function startServer() {
       res.status(500).json({ error: "PDF-Generierung fehlgeschlagen" });
     }
   });
+
+  // Serve static files NACH API-Endpoints
+  app.use(express.static(staticPath));
 
   // Handle client-side routing - serve index.html for all routes
   app.get("*", (_req, res) => {
