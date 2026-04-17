@@ -261,11 +261,12 @@ export default function Home() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    const dpr = window.devicePixelRatio || 1;
     const clientX = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
 
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
+    const x = (clientX - rect.left) * dpr;
+    const y = (clientY - rect.top) * dpr;
 
     ctx.beginPath();
     ctx.moveTo(x, y);
@@ -281,13 +282,14 @@ export default function Home() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    const dpr = window.devicePixelRatio || 1;
     const clientX = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
 
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
+    const x = (clientX - rect.left) * dpr;
+    const y = (clientY - rect.top) * dpr;
 
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 2 * dpr;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.strokeStyle = '#000';
@@ -310,22 +312,6 @@ export default function Home() {
     if (!vertragModalRef.current) return;
 
     try {
-      const element = vertragModalRef.current;
-      
-      // Verwende html2canvas mit optimierten Einstellungen
-      const canvas = await html2canvas(element, {
-        scale: 1.5,
-        useCORS: true,
-        logging: false,
-        backgroundColor: "#ffffff",
-        allowTaint: true,
-        width: element.scrollWidth,
-        height: element.scrollHeight,
-      });
-
-      const imgData = canvas.toDataURL("image/png");
-      
-      // Erstelle PDF mit jsPDF
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
@@ -333,24 +319,58 @@ export default function Home() {
       });
 
       const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
       const margin = 10;
-      const imgWidth = pageWidth - (2 * margin);
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
+      const contentWidth = pageWidth - (2 * margin);
       let yPosition = margin;
-      let heightLeft = imgHeight;
 
-      // Erste Seite
-      pdf.addImage(imgData, "PNG", margin, yPosition, imgWidth, imgHeight);
-      heightLeft -= pageHeight - (2 * margin);
+      // Titel
+      pdf.setFontSize(16);
+      pdf.text("F26 EnergyControl - Nutzungsvertrag", margin, yPosition);
+      yPosition += 10;
 
-      // Weitere Seiten
-      while (heightLeft > 0) {
-        yPosition = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, "PNG", margin, yPosition, imgWidth, imgHeight);
-        heightLeft -= pageHeight - (2 * margin);
+      // Kundendaten
+      pdf.setFontSize(10);
+      pdf.text(`Standortgeber: ${gesetzlicherVertreter || "[Name]"}`, margin, yPosition);
+      yPosition += 5;
+      pdf.text(`Unternehmen: ${kundenUnternehmen || "[Unternehmen]"}`, margin, yPosition);
+      yPosition += 5;
+      pdf.text(`Adresse: ${kundenAdresse || "[Adresse]"}`, margin, yPosition);
+      yPosition += 5;
+      pdf.text(`Email: ${kundenEmail || "[Email]"}`, margin, yPosition);
+      yPosition += 10;
+
+      // Aufsteller
+      pdf.text("Aufsteller: FitForFuture Energy Nord GmbH", margin, yPosition);
+      yPosition += 5;
+      pdf.text("Adresse: Melchiorstraße 26, 10179 Berlin", margin, yPosition);
+      yPosition += 10;
+
+      // Vertragsbedingungen (gekürzt)
+      pdf.setFontSize(9);
+      pdf.text("Vertragsbedingungen:", margin, yPosition);
+      yPosition += 5;
+      pdf.text("• 0€ Investition", margin, yPosition);
+      yPosition += 4;
+      pdf.text("• Einsparung ab Tag 1", margin, yPosition);
+      yPosition += 4;
+      pdf.text("• 5 Jahre Garantie", margin, yPosition);
+      yPosition += 4;
+      pdf.text("• 24/7 Überwachung", margin, yPosition);
+      yPosition += 4;
+      pdf.text("• Kostenlose Netzanalyse", margin, yPosition);
+      yPosition += 10;
+
+      // Unterschrift
+      pdf.text("Unterschrift Kunde:", margin, yPosition);
+      yPosition += 8;
+      
+      // Unterschrift-Canvas einfügen
+      const canvas = signatureCanvasRef.current;
+      if (canvas && unterschriftGeleistet) {
+        const signatureImage = canvas.toDataURL("image/png");
+        pdf.addImage(signatureImage, "PNG", margin, yPosition, 60, 20);
+      } else {
+        pdf.text("_________________________", margin, yPosition + 15);
       }
 
       // Speichern
@@ -1015,13 +1035,15 @@ export default function Home() {
                   <div className="w-full border-2 border-slate-300 rounded-lg bg-white p-2">
                     <canvas
                       ref={signatureCanvasRef}
-                      width={600}
-                      height={150}
+                      width={600 * (window.devicePixelRatio || 1)}
+                      height={150 * (window.devicePixelRatio || 1)}
                       className="w-full border border-slate-200 rounded cursor-crosshair block"
                       style={{
                         touchAction: "none",
                         backgroundColor: "white",
-                        display: "block"
+                        display: "block",
+                        width: "100%",
+                        height: "150px"
                       }}
                       onMouseDown={startDrawing}
                       onMouseMove={draw}
