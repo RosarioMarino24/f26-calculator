@@ -34,6 +34,7 @@ export default function Home() {
   const [kundenAdresse, setKundenAdresse] = useState("");
   const [kundenEmail, setKundenEmail] = useState("");
   const [stromrechnung, setStromrechnung] = useState<number>(3000);
+  const [strompreis, setStrompreis] = useState<number>(0.25);
   const [showMapPicker, setShowMapPicker] = useState(false);
   
   // Vertrag & Modal
@@ -46,6 +47,7 @@ export default function Home() {
   // Berechnungen
   const monatlicheErsparnis = Math.round(stromrechnung * 0.2 * 100) / 100;
   const jaehrlicheErsparnis = Math.round(monatlicheErsparnis * 12 * 100) / 100;
+  const stromverbrauch = Math.round((stromrechnung / strompreis) * 100) / 100;
 
   // Echte Kundendaten-Visualisierungen
   const monthlyData = Array.from({ length: 12 }, (_, i) => {
@@ -350,6 +352,18 @@ export default function Home() {
                   type="number"
                   className="border-2 border-slate-200"
                   min="0"
+                />
+              </div>
+              <div>
+                <Label className="text-sm font-semibold text-slate-900 mb-2 block">Strompreis (€/kWh)</Label>
+                <Input
+                  value={strompreis}
+                  onChange={(e) => setStrompreis(Number(e.target.value) || 0.25)}
+                  type="number"
+                  step="0.01"
+                  className="border-2 border-slate-200"
+                  min="0"
+                  placeholder="z.B. 0,25"
                 />
               </div>
             </div>
