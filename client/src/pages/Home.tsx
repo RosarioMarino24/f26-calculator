@@ -80,9 +80,11 @@ export default function Home() {
     }
   };
 
-  // Echte Kundendaten-Visualisierungen (nur bei Stromänderungen aktualisieren)
+  // Echte Kundendaten-Visualisierungen (deterministische, stabile Daten)
   const monthlyData = Array.from({ length: 12 }, (_, i) => {
-    const baseWithout = berechnetStromrechnung * (0.9 + Math.random() * 0.2);
+    // Stabile Berechnung ohne Math.random() - ändert sich nur bei Stromänderungen
+    const seasonalFactor = 0.85 + (i % 3) * 0.05; // Saisonale Variation: 85%, 90%, 95%
+    const baseWithout = berechnetStromrechnung * seasonalFactor;
     return {
       month: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"][i],
       ohne: Math.round(baseWithout),
@@ -108,8 +110,12 @@ export default function Home() {
       content: (
         <div className="space-y-4">
           <div className="bg-green-50 p-4 rounded-lg border-2 border-green-300">
-            <p className="font-bold text-green-900 text-lg">0€ INVESTITION</p>
-            <p className="text-green-700 text-sm mt-2">Sie zahlen NICHTS.</p>
+            <p className="font-bold text-green-900 text-lg">✓ 0€ INVESTITION</p>
+            <p className="text-green-700 text-sm mt-2">Sie zahlen NICHTS. Wir tragen alle Kosten. Sie sparen sofort ab Tag 1.</p>
+            <p className="text-green-700 text-sm mt-3 font-semibold">Ihr Vorteil: Kostenlose Netzanalyse + sofortige Einsparung</p>
+          </div>
+          <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+            <p className="text-blue-900 text-sm"><strong>Beispiel:</strong> Bei 3.000€/Monat Stromrechnung sparen Sie 600€/Monat – das sind 7.200€ pro Jahr!</p>
           </div>
         </div>
       ),
@@ -211,39 +217,45 @@ export default function Home() {
     if (!vertragModalRef.current) return;
 
     try {
-      // Verwende jsPDF direkt für PDF-Generierung
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-      });
-
-      const canvas = await html2canvas(vertragModalRef.current, {
+      const element = vertragModalRef.current;
+      const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
         logging: false,
         backgroundColor: "#ffffff",
+        allowTaint: true,
       });
 
       const imgData = canvas.toDataURL("image/png");
-      const imgWidth = 210;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-      let position = 0;
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+        compress: true,
+      });
 
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-      heightLeft -= 297;
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pageWidth - 10;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      let heightLeft = imgHeight;
+      let position = 5;
+
+      pdf.addImage(imgData, "PNG", 5, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight - 10;
 
       while (heightLeft > 0) {
         position = heightLeft - imgHeight;
         pdf.addPage();
-        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-        heightLeft -= 297;
+        pdf.addImage(imgData, "PNG", 5, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight - 10;
       }
 
-      pdf.save(`F26-Vertrag-${gesetzlicherVertreter || "Kunde"}.pdf`);
+      const fileName = `F26-Vertrag-${gesetzlicherVertreter || "Kunde"}-${new Date().toISOString().split("T")[0]}.pdf`;
+      pdf.save(fileName);
       setShowVertragModal(false);
-      alert("PDF erfolgreich generiert und heruntergeladen!");
+      alert("✓ PDF erfolgreich generiert und heruntergeladen!");
     } catch (error) {
       console.error("PDF-Generierung fehlgeschlagen:", error);
       alert("PDF konnte nicht generiert werden. Bitte versuchen Sie es später erneut.");
@@ -897,17 +909,26 @@ export default function Home() {
                 <div className="border-t-2 border-slate-300 pt-4 space-y-3 mt-4">
                   <p className="font-bold text-slate-900">Unterschrift des Kunden:</p>
                   
-                  <div className="border-2 border-slate-300 rounded-lg bg-white p-3">
+                  <div className="w-full border-2 border-slate-300 rounded-lg bg-white p-2">
                     <SignatureCanvas
                       ref={signatureRef}
                       canvasProps={{
                         width: 500,
-                        height: 100,
-                        className: "border border-slate-200 rounded w-full bg-white",
+                        height: 150,
+                        className: "w-full border border-slate-200 rounded cursor-crosshair",
+                        style: { 
+                          touchAction: "none",
+                          display: "block",
+                          backgroundColor: "white"
+                        },
                       }}
+                      onEnd={handleSignature}
+                      penColor="#000"
+                      throttle={5}
+                      velocityFilterWeight={0.7}
                     />
                   </div>
-
+                  
                   <div className="flex gap-3">
                     <Button variant="outline" onClick={handleClearSignature} size="sm" className="text-xs">
                       Löschen
