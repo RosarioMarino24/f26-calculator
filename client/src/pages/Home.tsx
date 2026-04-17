@@ -33,7 +33,7 @@ export default function Home() {
   const [kundenUnternehmen, setKundenUnternehmen] = useState("");
   const [kundenAdresse, setKundenAdresse] = useState("");
   const [kundenEmail, setKundenEmail] = useState("");
-  const [inputMode, setInputMode] = useState<"stromrechnung" | "verbrauch">("stromrechnung");
+  const [inputMode, setInputMode] = useState<"schnell" | "genau">("schnell");
   const [stromrechnung, setStromrechnung] = useState<number>(3000);
   const [strompreis, setStrompreis] = useState<number>(0.25);
   const [stromverbrauchKwh, setStromverbrauchKwh] = useState<number>(12000);
@@ -47,13 +47,13 @@ export default function Home() {
   const [activeObjection, setActiveObjection] = useState<string | null>(null);
 
   // Berechnungen basierend auf Input-Modus
-  const berechnetStromrechnung = inputMode === "stromrechnung" 
+  const berechnetStromrechnung = inputMode === "schnell" 
     ? stromrechnung 
     : Math.round(stromverbrauchKwh * strompreis * 100) / 100;
   
   const monatlicheErsparnis = Math.round(berechnetStromrechnung * 0.2 * 100) / 100;
   const jaehrlicheErsparnis = Math.round(monatlicheErsparnis * 12 * 100) / 100;
-  const berechnetStromverbrauch = inputMode === "stromrechnung"
+  const berechnetStromverbrauch = inputMode === "schnell"
     ? Math.round((stromrechnung / strompreis) * 100) / 100
     : stromverbrauchKwh;
 
@@ -316,25 +316,25 @@ export default function Home() {
               <h2 className="text-xl font-bold text-slate-900">Kundendaten</h2>
               <div className="flex items-center gap-3 bg-white rounded-lg p-2 border-2 border-slate-200">
                 <button
-                  onClick={() => setInputMode("stromrechnung")}
+                  onClick={() => setInputMode("schnell")}
                   className={`px-3 py-1 rounded font-semibold text-sm transition-all ${
-                    inputMode === "stromrechnung"
+                    inputMode === "schnell"
                       ? "bg-blue-600 text-white"
                       : "text-slate-600 hover:bg-slate-100"
                   }`}
                 >
-                  Stromrechnung
+                  Schnell
                 </button>
                 <div className="w-px h-6 bg-slate-300"></div>
                 <button
-                  onClick={() => setInputMode("verbrauch")}
+                  onClick={() => setInputMode("genau")}
                   className={`px-3 py-1 rounded font-semibold text-sm transition-all ${
-                    inputMode === "verbrauch"
+                    inputMode === "genau"
                       ? "bg-blue-600 text-white"
                       : "text-slate-600 hover:bg-slate-100"
                   }`}
                 >
-                  Verbrauch + Preis
+                  Genau
                 </button>
               </div>
             </div>
@@ -377,7 +377,7 @@ export default function Home() {
                   </Button>
                 </div>
               </div>
-              {inputMode === "stromrechnung" ? (
+              {inputMode === "schnell" ? (
                 <>
                   <div>
                     <Label className="text-sm font-semibold text-slate-900 mb-2 block">Stromrechnung (€/Mo)</Label>
@@ -387,18 +387,6 @@ export default function Home() {
                       type="number"
                       className="border-2 border-slate-200"
                       min="0"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-sm font-semibold text-slate-900 mb-2 block">Strompreis (€/kWh)</Label>
-                    <Input
-                      value={strompreis}
-                      onChange={(e) => setStrompreis(Number(e.target.value) || 0.25)}
-                      type="number"
-                      step="0.01"
-                      className="border-2 border-slate-200"
-                      min="0"
-                      placeholder="z.B. 0,25"
                     />
                   </div>
                 </>
