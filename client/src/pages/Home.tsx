@@ -247,47 +247,57 @@ export default function Home() {
 
     try {
       const element = vertragModalRef.current;
+      
+      // Verwende html2canvas mit optimierten Einstellungen
       const canvas = await html2canvas(element, {
-        scale: 2,
+        scale: 1.5,
         useCORS: true,
         logging: false,
         backgroundColor: "#ffffff",
         allowTaint: true,
+        width: element.scrollWidth,
+        height: element.scrollHeight,
       });
 
       const imgData = canvas.toDataURL("image/png");
+      
+      // Erstelle PDF mit jsPDF
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
         format: "a4",
-        compress: true,
       });
 
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = pageWidth - 10;
+      const margin = 10;
+      const imgWidth = pageWidth - (2 * margin);
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
+      let yPosition = margin;
       let heightLeft = imgHeight;
-      let position = 5;
 
-      pdf.addImage(imgData, "PNG", 5, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight - 10;
+      // Erste Seite
+      pdf.addImage(imgData, "PNG", margin, yPosition, imgWidth, imgHeight);
+      heightLeft -= pageHeight - (2 * margin);
 
+      // Weitere Seiten
       while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
+        yPosition = heightLeft - imgHeight;
         pdf.addPage();
-        pdf.addImage(imgData, "PNG", 5, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight - 10;
+        pdf.addImage(imgData, "PNG", margin, yPosition, imgWidth, imgHeight);
+        heightLeft -= pageHeight - (2 * margin);
       }
 
+      // Speichern
       const fileName = `F26-Vertrag-${gesetzlicherVertreter || "Kunde"}-${new Date().toISOString().split("T")[0]}.pdf`;
       pdf.save(fileName);
+      
       setShowVertragModal(false);
       alert("✓ PDF erfolgreich generiert und heruntergeladen!");
     } catch (error) {
       console.error("PDF-Generierung fehlgeschlagen:", error);
-      alert("PDF konnte nicht generiert werden. Bitte versuchen Sie es später erneut.");
+      alert("PDF konnte nicht generiert werden. Fehler: " + (error as Error).message);
     }
   };
 
@@ -939,26 +949,24 @@ export default function Home() {
                   <p className="font-bold text-slate-900">Unterschrift des Kunden:</p>
                   
                   <div className="w-full border-2 border-slate-300 rounded-lg bg-white p-2">
-                <SignatureCanvas
-                  ref={signatureRef}
-                  canvasProps={{
-                    width: 800,
-                    height: 200,
-                    className: "w-full border border-slate-200 rounded cursor-crosshair",
-                    style: { 
-                      touchAction: "none",
-                      display: "block",
-                      backgroundColor: "white",
-                      maxWidth: "100%",
-                      height: "auto"
-                    },
-                  }}
-                  onEnd={handleSignature}
-                  penColor="#000"
-                  throttle={3}
-                  velocityFilterWeight={0.7}
-                  dotSize={2}
-                />
+                    <SignatureCanvas
+                      ref={signatureRef}
+                      canvasProps={{
+                        width: 600,
+                        height: 150,
+                        className: "w-full border border-slate-200 rounded cursor-crosshair",
+                        style: { 
+                          touchAction: "none",
+                          display: "block",
+                          backgroundColor: "white"
+                        },
+                      }}
+                      onEnd={handleSignature}
+                      penColor="#000"
+                      throttle={5}
+                      velocityFilterWeight={0.7}
+                      dotSize={1}
+                    />
                   </div>
                   
                   <div className="flex gap-3">
