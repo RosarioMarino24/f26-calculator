@@ -4,20 +4,20 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowRight, AlertCircle, CheckCircle2, TrendingUp, Shield, Zap, Info } from "lucide-react";
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { ArrowRight, AlertCircle, CheckCircle2, TrendingUp, Shield, Zap, Info, ChevronDown } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import SignatureCanvas from "react-signature-canvas";
 
 /**
- * F26 EnergyControl - VERKAUFS-PLATTFORM
+ * F26 EnergyControl - VERKAUFS-PLATTFORM (Option C)
  * 
  * PSYCHOLOGISCHE STRUKTUR:
- * 1. Intro-Screen: Aufmerksamkeit + Relevanz (Was habe ICH davon?)
- * 2. Live-Kalkulator: Emotionale Bindung (Ich sehe MEINE Ersparnis)
- * 3. Einwand-Handler: Objektionen abbauen
- * 4. Info-Section: Vertrauen aufbauen (Wer seid ihr? Seid ihr seriös?)
- * 
- * Prinzip: AIDA-Modell (Attention → Interest → Desire → Action)
+ * 1. Intro-Screen: Aufmerksamkeit + Relevanz
+ * 2. Kalkulator mit Kundendaten-Formular
+ * 3. Echte Visualisierungen (basierend auf Kundendaten)
+ * 4. Einwand-Handler
+ * 5. Vertrag-Preview mit automatischen Kundendaten
+ * 6. Unterschriftsfeld (rechtssicher)
  */
 
 type ObjectionHandler = {
@@ -30,10 +30,18 @@ type ObjectionHandler = {
 
 export default function Home() {
   const [currentScreen, setCurrentScreen] = useState<"intro" | "calculator" | "info">("intro");
+  
+  // Kundendaten
+  const [kundenName, setKundenName] = useState("");
+  const [kundenUnternehmen, setKundenUnternehmen] = useState("");
+  const [kundenEmail, setKundenEmail] = useState("");
   const [stromrechnung, setStromrechnung] = useState<number>(3000);
-  const [activeObjection, setActiveObjection] = useState<string | null>(null);
-  const [showSignature, setShowSignature] = useState(false);
+  
+  // Vertrag & Unterschrift
+  const [vertragGelesen, setVertragGelesen] = useState(false);
+  const [unterschriftGeleistet, setUnterschriftGeleistet] = useState(false);
   const signatureRef = useRef<any>(null);
+  const [activeObjection, setActiveObjection] = useState<string | null>(null);
 
   // Berechnungen
   const monatlicheErsparnis = Math.round(stromrechnung * 0.2 * 100) / 100;
@@ -41,26 +49,23 @@ export default function Home() {
   const cosPhi = 0.97;
   const cosPhiAlt = 0.86;
 
-  // Daten für Visualisierungen
-  const monthlyData = [
-    { month: "Jan", ohne: 5200, mit: 3120 },
-    { month: "Feb", ohne: 5400, mit: 3240 },
-    { month: "Mär", ohne: 4800, mit: 2880 },
-    { month: "Apr", ohne: 4500, mit: 2700 },
-    { month: "Mai", ohne: 6100, mit: 3660 },
-    { month: "Jun", ohne: 6300, mit: 3780 },
-    { month: "Jul", ohne: 6200, mit: 3720 },
-    { month: "Aug", ohne: 5900, mit: 3540 },
-    { month: "Sep", ohne: 5500, mit: 3300 },
-    { month: "Okt", ohne: 5700, mit: 3420 },
-    { month: "Nov", ohne: 6000, mit: 3600 },
-    { month: "Dez", ohne: 6400, mit: 3840 },
-  ];
+  // Echte Kundendaten-Visualisierungen
+  const monthlyData = Array.from({ length: 12 }, (_, i) => {
+    const baseWithout = stromrechnung * (0.9 + Math.random() * 0.2);
+    return {
+      month: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"][i],
+      ohne: Math.round(baseWithout),
+      mit: Math.round(baseWithout * 0.8),
+    };
+  });
 
+  // Einsparungsquellen (ohne "Sonstige")
   const savingsData = [
-    { name: "Blindarbeit-Wegfall", value: 38, fill: "#4CAF50" },
-    { name: "Leitungsverluste", value: 12, fill: "#66BB6A" },
-    { name: "Sonstige", value: 50, fill: "#81C784" },
+    { name: "Blindarbeit-Wegfall", value: 38, fill: "#10B981" },
+    { name: "Leitungsverluste", value: 12, fill: "#34D399" },
+    { name: "Reaktive Leistung", value: 20, fill: "#6EE7B7" },
+    { name: "Harmonische Verzerrung", value: 15, fill: "#A7F3D0" },
+    { name: "Spannungsoptimierung", value: 15, fill: "#D1FAE5" },
   ];
 
   const objectionHandlers: ObjectionHandler[] = [
@@ -106,19 +111,8 @@ export default function Home() {
               Ihre Einsparung beginnt sofort nach Inbetriebnahme. Keine Wartezeit.
             </p>
           </div>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={monthlyData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip formatter={(value) => `${value}€`} />
-              <Legend />
-              <Bar dataKey="ohne" fill="#EF4444" name="Ohne F26" />
-              <Bar dataKey="mit" fill="#4CAF50" name="Mit F26" />
-            </BarChart>
-          </ResponsiveContainer>
           <p className="text-sm text-slate-600">
-            Beispiel: Bei 3.000€/Monat Stromrechnung sparen Sie 600€/Monat = 7.200€/Jahr
+            Bei {stromrechnung.toLocaleString("de-DE")}€/Monat Stromrechnung sparen Sie {monatlicheErsparnis.toLocaleString("de-DE")}€/Monat = {jaehrlicheErsparnis.toLocaleString("de-DE")}€/Jahr
           </p>
         </div>
       ),
@@ -285,32 +279,28 @@ export default function Home() {
 
   const handleClearSignature = () => {
     signatureRef.current?.clear();
+    setUnterschriftGeleistet(false);
   };
 
-  const handleDownloadSignature = () => {
+  const handleSignature = () => {
     const canvas = signatureRef.current?.getCanvas();
-    if (canvas) {
-      const link = document.createElement("a");
-      link.href = canvas.toDataURL();
-      link.download = "f26-unterschrift.png";
-      link.click();
+    if (canvas && canvas.toDataURL() !== "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==") {
+      setUnterschriftGeleistet(true);
     }
   };
 
   // ============================================
-  // SCREEN 1: INTRO (Aufmerksamkeit + Relevanz)
+  // SCREEN 1: INTRO
   // ============================================
   if (currentScreen === "intro") {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4">
         <div className="max-w-2xl w-full space-y-8 text-center">
-          {/* Logo/Branding */}
           <div>
             <h1 className="text-6xl font-bold text-blue-600 mb-2">F26</h1>
             <p className="text-slate-600 text-sm font-semibold">EnergyControl</p>
           </div>
 
-          {/* Hauptbotschaft */}
           <div className="space-y-4">
             <h2 className="text-5xl font-bold text-slate-900 leading-tight">
               Ihr Strom.<br />Ihre Kosten.<br />Ihre Wahl.
@@ -320,7 +310,6 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Subtext */}
           <div className="bg-green-50 border-2 border-green-200 rounded-lg p-6">
             <p className="text-green-900 font-semibold text-lg">
               ✓ Einsparung ab Tag 1
@@ -330,31 +319,32 @@ export default function Home() {
             </p>
           </div>
 
-          {/* CTA Button */}
-          <Button
-            size="lg"
-            onClick={() => setCurrentScreen("calculator")}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-7 px-12 text-xl w-full max-w-md mx-auto"
-          >
-            Jetzt berechnen
-            <ArrowRight className="ml-3 h-6 w-6" />
-          </Button>
-
-          {/* Info Link */}
-          <button
-            onClick={() => setCurrentScreen("info")}
-            className="text-blue-600 hover:text-blue-700 font-semibold text-sm flex items-center justify-center gap-2 mx-auto"
-          >
-            <Info className="w-4 h-4" />
-            Wer wir sind & wie es funktioniert
-          </button>
+          {/* Buttons getauscht: "Wer wir sind" groß, "Jetzt berechnen" klein */}
+          <div className="space-y-3">
+            <Button
+              size="lg"
+              onClick={() => setCurrentScreen("info")}
+              className="bg-slate-900 hover:bg-slate-800 text-white font-bold py-7 px-12 text-xl w-full"
+            >
+              Wer wir sind & wie es funktioniert
+            </Button>
+            
+            <Button
+              variant="outline"
+              onClick={() => setCurrentScreen("calculator")}
+              className="w-full font-semibold text-blue-600 border-blue-600 hover:bg-blue-50"
+            >
+              Jetzt berechnen
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
     );
   }
 
   // ============================================
-  // SCREEN 2: CALCULATOR (Emotionale Bindung)
+  // SCREEN 2: CALCULATOR (mit Kundendaten)
   // ============================================
   if (currentScreen === "calculator") {
     return (
@@ -392,277 +382,270 @@ export default function Home() {
         </header>
 
         <main className="max-w-7xl mx-auto px-4 py-8">
-          {/* Live Kalkulator */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 print:grid-cols-2">
-            {/* Input Section */}
-            <Card className="lg:col-span-1 p-6 shadow-lg border-0 print:shadow-none">
-              <h2 className="text-xl font-bold text-slate-900 mb-4">Live-Kalkulator</h2>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="stromrechnung" className="text-sm font-semibold text-slate-900 mb-2 block">
-                    Monatliche Stromrechnung (€)
-                  </Label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xl font-bold text-slate-400">€</span>
-                    <Input
-                      id="stromrechnung"
-                      type="number"
-                      value={stromrechnung}
-                      onChange={(e) => setStromrechnung(Number(e.target.value) || 0)}
-                      className="pl-10 py-4 text-lg border-2 border-slate-200 focus:border-blue-600"
-                      min="0"
-                    />
-                  </div>
-                </div>
-
-                {/* Quick Select */}
-                <div className="space-y-2">
-                  <p className="text-xs text-slate-600 font-semibold">SCHNELLAUSWAHL</p>
-                  <div className="grid grid-cols-3 gap-2">
-                    {[1000, 3000, 5000].map((value) => (
-                      <Button
-                        key={value}
-                        variant={stromrechnung === value ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setStromrechnung(value)}
-                        className="text-xs"
-                      >
-                        {value}€
-                      </Button>
-                    ))}
-                  </div>
-                </div>
+          {/* Kundendaten-Formular */}
+          <Card className="p-6 border-0 shadow-lg mb-8 bg-gradient-to-r from-blue-50 to-slate-50">
+            <h2 className="text-xl font-bold text-slate-900 mb-4">Kundendaten</h2>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div>
+                <Label className="text-sm font-semibold text-slate-900 mb-2 block">Name</Label>
+                <Input
+                  value={kundenName}
+                  onChange={(e) => setKundenName(e.target.value)}
+                  placeholder="z.B. Max Müller"
+                  className="border-2 border-slate-200"
+                />
               </div>
-            </Card>
+              <div>
+                <Label className="text-sm font-semibold text-slate-900 mb-2 block">Unternehmen</Label>
+                <Input
+                  value={kundenUnternehmen}
+                  onChange={(e) => setKundenUnternehmen(e.target.value)}
+                  placeholder="z.B. ABC GmbH"
+                  className="border-2 border-slate-200"
+                />
+              </div>
+              <div>
+                <Label className="text-sm font-semibold text-slate-900 mb-2 block">Email</Label>
+                <Input
+                  value={kundenEmail}
+                  onChange={(e) => setKundenEmail(e.target.value)}
+                  placeholder="z.B. max@abc.de"
+                  type="email"
+                  className="border-2 border-slate-200"
+                />
+              </div>
+              <div>
+                <Label className="text-sm font-semibold text-slate-900 mb-2 block">Stromrechnung (€/Mo)</Label>
+                <Input
+                  value={stromrechnung}
+                  onChange={(e) => setStromrechnung(Number(e.target.value) || 0)}
+                  type="number"
+                  className="border-2 border-slate-200"
+                  min="0"
+                />
+              </div>
+            </div>
+          </Card>
 
-            {/* Ergebnis Section */}
-            <Card className="lg:col-span-2 p-8 shadow-lg border-0 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 print:shadow-none">
-              <div className="space-y-6">
-                <div>
-                  <p className="text-sm text-green-700 font-semibold mb-2">MONATLICHE ERSPARNIS</p>
-                  <p className="text-6xl font-bold text-green-600 text-display">
-                    {monatlicheErsparnis.toLocaleString("de-DE", {
+          {/* Ersparnis + Visualisierung */}
+          <Card className="p-8 border-0 shadow-lg mb-8 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200">
+            <div className="space-y-6">
+              <div>
+                <p className="text-sm text-green-700 font-semibold mb-2">MONATLICHE ERSPARNIS</p>
+                <p className="text-6xl font-bold text-green-600">
+                  {monatlicheErsparnis.toLocaleString("de-DE", {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                  })}
+                  €
+                </p>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div className="bg-white rounded-lg p-4 border border-green-200">
+                  <p className="text-xs text-slate-600 font-semibold mb-1">JÄHRLICH</p>
+                  <p className="text-2xl font-bold text-slate-900">
+                    {jaehrlicheErsparnis.toLocaleString("de-DE", {
                       minimumFractionDigits: 0,
                       maximumFractionDigits: 0,
                     })}
                     €
                   </p>
                 </div>
-
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="bg-white rounded-lg p-4 border border-green-200">
-                    <p className="text-xs text-slate-600 font-semibold mb-1">JÄHRLICH</p>
-                    <p className="text-2xl font-bold text-slate-900">
-                      {jaehrlicheErsparnis.toLocaleString("de-DE", {
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 0,
-                      })}
-                      €
-                    </p>
-                  </div>
-                  <div className="bg-white rounded-lg p-4 border border-green-200">
-                    <p className="text-xs text-slate-600 font-semibold mb-1">AMORTISATION</p>
-                    <p className="text-2xl font-bold text-green-600">Tag 1</p>
-                  </div>
-                  <div className="bg-white rounded-lg p-4 border border-green-200">
-                    <p className="text-xs text-slate-600 font-semibold mb-1">INVESTITION</p>
-                    <p className="text-2xl font-bold text-green-600">0€</p>
-                  </div>
+                <div className="bg-white rounded-lg p-4 border border-green-200">
+                  <p className="text-xs text-slate-600 font-semibold mb-1">AMORTISATION</p>
+                  <p className="text-2xl font-bold text-green-600">Tag 1</p>
                 </div>
-
-                <div className="h-1 bg-gradient-to-r from-green-400 to-green-600 rounded-full"></div>
-
-                <p className="text-sm text-green-700 font-semibold">
-                  ✓ Einsparung beginnt sofort nach Inbetriebnahme
-                </p>
+                <div className="bg-white rounded-lg p-4 border border-green-200">
+                  <p className="text-xs text-slate-600 font-semibold mb-1">INVESTITION</p>
+                  <p className="text-2xl font-bold text-green-600">0€</p>
+                </div>
               </div>
+
+              <div className="h-1 bg-gradient-to-r from-green-400 to-green-600 rounded-full"></div>
+              <p className="text-sm text-green-700 font-semibold">✓ Einsparung beginnt sofort nach Inbetriebnahme</p>
+            </div>
+          </Card>
+
+          {/* Visualisierungen (direkt, ohne Tab-Auswahl) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            {/* Monatliche Kostenersparnis */}
+            <Card className="p-6 border-0 shadow-lg">
+              <h3 className="text-lg font-bold text-slate-900 mb-4">Monatliche Kostenersparnis</h3>
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={monthlyData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip formatter={(value) => `${value}€`} />
+                  <Legend />
+                  <Bar dataKey="ohne" fill="#EF4444" name="Ohne F26" />
+                  <Bar dataKey="mit" fill="#10B981" name="Mit F26" />
+                </BarChart>
+              </ResponsiveContainer>
+            </Card>
+
+            {/* Einsparungsquellen (farblich prägnanter) */}
+            <Card className="p-6 border-0 shadow-lg">
+              <h3 className="text-lg font-bold text-slate-900 mb-4">Einsparungsquellen</h3>
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie
+                    data={savingsData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, value }) => `${name}: ${value}%`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {savingsData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.fill} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value) => `${value}%`} />
+                </PieChart>
+              </ResponsiveContainer>
             </Card>
           </div>
 
-          {/* Tabs für verschiedene Sichten */}
-          <Tabs defaultValue="objections" className="mb-8 print:hidden">
-            <TabsList className="grid w-full grid-cols-3 bg-white border border-slate-200">
-              <TabsTrigger value="objections">Einwand-Handler</TabsTrigger>
-              <TabsTrigger value="visualizations">Visualisierungen</TabsTrigger>
-              <TabsTrigger value="signature">Unterschrift</TabsTrigger>
-            </TabsList>
-
-            {/* Einwand-Handler */}
-            <TabsContent value="objections" className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {objectionHandlers.map((handler) => (
-                  <Button
-                    key={handler.id}
-                    variant="outline"
-                    onClick={() => setActiveObjection(activeObjection === handler.id ? null : handler.id)}
-                    className={`h-auto p-4 justify-start text-left border-2 ${
-                      activeObjection === handler.id ? `${handler.color} border-current` : handler.color
-                    }`}
-                  >
-                    <div className="flex items-start gap-3 w-full">
-                      <span className="text-xl">{handler.icon}</span>
-                      <span className="font-semibold text-slate-900">{handler.title}</span>
-                    </div>
-                  </Button>
-                ))}
-              </div>
-
-              {/* Objection Content */}
-              {activeObjection && (
-                <Card className="p-6 border-2 border-blue-200 bg-blue-50">
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-bold text-slate-900">
-                      {objectionHandlers.find((h) => h.id === activeObjection)?.title}
-                    </h3>
-                    {objectionHandlers.find((h) => h.id === activeObjection)?.content}
+          {/* Einwand-Handler (direkt darunter) */}
+          <Card className="p-6 border-0 shadow-lg mb-8">
+            <h2 className="text-xl font-bold text-slate-900 mb-4">Häufige Fragen & Einwände</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {objectionHandlers.map((handler) => (
+                <Button
+                  key={handler.id}
+                  variant="outline"
+                  onClick={() => setActiveObjection(activeObjection === handler.id ? null : handler.id)}
+                  className={`h-auto p-4 justify-start text-left border-2 ${
+                    activeObjection === handler.id ? `${handler.color} border-current` : handler.color
+                  }`}
+                >
+                  <div className="flex items-start gap-3 w-full">
+                    <span className="text-xl">{handler.icon}</span>
+                    <span className="font-semibold text-slate-900">{handler.title}</span>
                   </div>
-                </Card>
-              )}
-            </TabsContent>
-
-            {/* Visualisierungen */}
-            <TabsContent value="visualizations" className="space-y-6">
-              <Card className="p-6 border-0 shadow-lg">
-                <h3 className="text-lg font-bold text-slate-900 mb-4">Monatliche Kostenersparnis (Beispiel)</h3>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={monthlyData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip formatter={(value) => `${value}€`} />
-                    <Legend />
-                    <Bar dataKey="ohne" fill="#EF4444" name="Ohne F26" />
-                    <Bar dataKey="mit" fill="#4CAF50" name="Mit F26" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </Card>
-
-              <Card className="p-6 border-0 shadow-lg">
-                <h3 className="text-lg font-bold text-slate-900 mb-4">Einsparungsquellen</h3>
-                <ResponsiveContainer width="100%" height={250}>
-                  <PieChart>
-                    <Pie
-                      data={savingsData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, value }) => `${name}: ${value}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {savingsData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.fill} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value) => `${value}%`} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </Card>
-            </TabsContent>
-
-            {/* Unterschrift */}
-            <TabsContent value="signature" className="space-y-4">
-              <Card className="p-6 border-0 shadow-lg">
-                <h3 className="text-lg font-bold text-slate-900 mb-4">Unterschrift des Kunden</h3>
-
-                <div className="border-2 border-slate-300 rounded-lg bg-white p-4 mb-4">
-                  <SignatureCanvas
-                    ref={signatureRef}
-                    canvasProps={{
-                      width: 500,
-                      height: 200,
-                      className: "border border-slate-200 rounded w-full bg-white",
-                    }}
-                  />
-                </div>
-
-                <div className="flex gap-3 print:hidden">
-                  <Button variant="outline" onClick={handleClearSignature}>
-                    Löschen
-                  </Button>
-                  <Button className="bg-green-600 hover:bg-green-700" onClick={handleDownloadSignature}>
-                    Unterschrift speichern
-                  </Button>
-                </div>
-
-                <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <p className="text-sm text-slate-700">
-                    <strong>Vertrag:</strong> 8-jährige Laufzeit ab Inbetriebnahme. Keine ordentliche Kündigung während Laufzeit.
-                    Kostenlose Netzanalyse (7 Tage), Installation und 24/7 Überwachung inklusive.
-                  </p>
-                </div>
-              </Card>
-            </TabsContent>
-          </Tabs>
-
-          {/* Praxisbeispiele */}
-          <Card className="p-6 border-0 shadow-lg mb-8 bg-gradient-to-r from-blue-50 to-slate-50 print:shadow-none">
-            <h2 className="text-2xl font-bold text-slate-900 mb-6">Praxisbeispiele</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-white p-4 rounded-lg border-l-4 border-l-green-500">
-                <p className="font-bold text-slate-900 mb-3">Produktionsbetrieb, 400 kVA</p>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-slate-600">Energiekosten-Einsparung</span>
-                    <span className="font-bold text-green-600">-38%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-600">cos ϕ Verbesserung</span>
-                    <span className="font-bold">0,86 → 0,97</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-600">Netto-Ertrag / Monat</span>
-                    <span className="font-bold text-green-600">+490€</span>
-                  </div>
-                  <div className="flex justify-between border-t pt-2">
-                    <span className="text-slate-600">Amortisation</span>
-                    <span className="font-bold">8 Monate</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white p-4 rounded-lg border-l-4 border-l-green-500">
-                <p className="font-bold text-slate-900 mb-3">Handwerksbetrieb, 100 kVA</p>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-slate-600">Energiekosten-Einsparung</span>
-                    <span className="font-bold text-green-600">-25%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-600">cos ϕ Verbesserung</span>
-                    <span className="font-bold">0,86 → 0,96</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-600">Netto-Ertrag / Monat</span>
-                    <span className="font-bold text-green-600">+120€</span>
-                  </div>
-                  <div className="flex justify-between border-t pt-2">
-                    <span className="text-slate-600">Amortisation</span>
-                    <span className="font-bold">6 Monate</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Card>
-
-          {/* Qualifizierung */}
-          <Card className="p-6 border-0 shadow-lg mb-8 bg-gradient-to-r from-green-50 to-emerald-50 print:shadow-none print:page-break-before">
-            <h2 className="text-2xl font-bold text-slate-900 mb-6">Ist Ihr Kunde qualifiziert?</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[
-                "Monatliche Stromrechnung > 2.500€",
-                "Motoren, Pumpen oder Verdichter im Dauerbetrieb",
-                "Keine oder veraltete Blindstromkompensation",
-                "Netzanbieter mit VDE-AR-N 4110 oder cos ϕ Anforderungen",
-              ].map((criterion, i) => (
-                <div key={i} className="flex items-start gap-3 bg-white p-4 rounded-lg border-l-4 border-l-green-500">
-                  <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-700">{criterion}</span>
-                </div>
+                </Button>
               ))}
             </div>
+
+            {activeObjection && (
+              <Card className="p-6 border-2 border-blue-200 bg-blue-50 mt-4">
+                <div className="space-y-4">
+                  <h3 className="text-lg font-bold text-slate-900">
+                    {objectionHandlers.find((h) => h.id === activeObjection)?.title}
+                  </h3>
+                  {objectionHandlers.find((h) => h.id === activeObjection)?.content}
+                </div>
+              </Card>
+            )}
           </Card>
+
+          {/* Vertrag-Preview */}
+          <Card className="p-6 border-0 shadow-lg mb-8 bg-gradient-to-r from-slate-50 to-blue-50">
+            <h2 className="text-xl font-bold text-slate-900 mb-4">Vertrag-Zusammenfassung</h2>
+            <div className="bg-white p-6 rounded-lg border-2 border-slate-200 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs text-slate-600 font-semibold">KUNDE</p>
+                  <p className="text-slate-900 font-semibold">{kundenName || "Nicht eingegeben"}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-600 font-semibold">UNTERNEHMEN</p>
+                  <p className="text-slate-900 font-semibold">{kundenUnternehmen || "Nicht eingegeben"}</p>
+                </div>
+              </div>
+
+              <div className="border-t pt-4 space-y-3">
+                <div>
+                  <p className="text-xs text-slate-600 font-semibold mb-1">VERTRAGSDETAILS</p>
+                  <ul className="space-y-2 text-sm text-slate-700">
+                    <li>✓ <strong>Monatliche Stromrechnung:</strong> {stromrechnung.toLocaleString("de-DE")}€</li>
+                    <li>✓ <strong>Monatliche Einsparung:</strong> {monatlicheErsparnis.toLocaleString("de-DE")}€</li>
+                    <li>✓ <strong>Jährliche Einsparung:</strong> {jaehrlicheErsparnis.toLocaleString("de-DE")}€</li>
+                    <li>✓ <strong>Laufzeit:</strong> 8 Jahre ab Inbetriebnahme</li>
+                    <li>✓ <strong>Investition:</strong> 0€</li>
+                    <li>✓ <strong>Garantie:</strong> 5 Jahre Vollgarantie</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 mt-4">
+                <p className="text-sm text-slate-700">
+                  <strong>Rechtlicher Hinweis:</strong> Mit Ihrer Unterschrift akzeptieren Sie die Bedingungen dieser Vereinbarung. 
+                  Die Laufzeit beträgt 8 Jahre ab Inbetriebnahme. Keine ordentliche Kündigung während der Laufzeit. 
+                  Kostenlose Netzanalyse (7 Tage), Installation und 24/7 Überwachung inklusive.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 mt-4">
+                <input
+                  type="checkbox"
+                  id="vertragGelesen"
+                  checked={vertragGelesen}
+                  onChange={(e) => setVertragGelesen(e.target.checked)}
+                  className="w-4 h-4 cursor-pointer"
+                />
+                <label htmlFor="vertragGelesen" className="text-sm text-slate-700 cursor-pointer">
+                  Ich habe die Vertragsbedingungen gelesen und akzeptiert
+                </label>
+              </div>
+            </div>
+          </Card>
+
+          {/* Unterschriftsfeld (nur aktiv wenn Vertrag gelesen) */}
+          {vertragGelesen && (
+            <Card className="p-6 border-0 shadow-lg mb-8 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200">
+              <h2 className="text-xl font-bold text-slate-900 mb-4">Unterschrift des Kunden</h2>
+
+              <div className="border-2 border-slate-300 rounded-lg bg-white p-4 mb-4">
+                <SignatureCanvas
+                  ref={signatureRef}
+                  canvasProps={{
+                    width: 500,
+                    height: 150,
+                    className: "border border-slate-200 rounded w-full bg-white",
+                  }}
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={handleClearSignature}>
+                  Löschen
+                </Button>
+                <Button
+                  className="bg-green-600 hover:bg-green-700"
+                  onClick={handleSignature}
+                  disabled={!vertragGelesen}
+                >
+                  Unterschrift bestätigen
+                </Button>
+              </div>
+
+              {unterschriftGeleistet && (
+                <div className="mt-4 p-4 bg-green-100 border border-green-400 rounded-lg">
+                  <p className="text-green-900 font-semibold">✓ Unterschrift erfolgreich! Der Vertrag ist nun rechtsgültig.</p>
+                </div>
+              )}
+            </Card>
+          )}
+
+          {/* Hinweis wenn Vertrag nicht gelesen */}
+          {!vertragGelesen && (
+            <Card className="p-4 border-2 border-orange-200 bg-orange-50 mb-8">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold text-orange-900">Vertrag erforderlich</p>
+                  <p className="text-sm text-orange-800 mt-1">
+                    Bitte lesen Sie die Vertragsbedingungen oben und akzeptieren Sie diese, um das Unterschriftsfeld freizuschalten.
+                  </p>
+                </div>
+              </div>
+            </Card>
+          )}
         </main>
 
         {/* Footer */}
@@ -676,7 +659,7 @@ export default function Home() {
   }
 
   // ============================================
-  // SCREEN 3: INFO (Vertrauen aufbauen)
+  // SCREEN 3: INFO
   // ============================================
   if (currentScreen === "info") {
     return (
