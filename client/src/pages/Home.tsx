@@ -31,8 +31,10 @@ export default function Home() {
   // Kundendaten
   const [gesetzlicherVertreter, setGesetzlicherVertreter] = useState("");
   const [kundenUnternehmen, setKundenUnternehmen] = useState("");
-  const [kundenAdresse, setKundenAdresse] = useState("");
-  const [kundenEmail, setKundenEmail] = useState("");
+  const [kundenAdresse, setKundenAdresse] = useState<string>("");
+  const [kundenEmail, setKundenEmail] = useState<string>("");
+  const [adressVorschlaege, setAdressVorschlaege] = useState<string[]>([]);
+  const [showAdressVorschlaege, setShowAdressVorschlaege] = useState(false);
   const [inputMode, setInputMode] = useState<"schnell" | "genau">("schnell");
   const [stromrechnung, setStromrechnung] = useState<number>(3000);
   const [strompreis, setStrompreis] = useState<number>(0.25);
@@ -57,7 +59,28 @@ export default function Home() {
     ? Math.round((stromrechnung / strompreis) * 100) / 100
     : stromverbrauchKwh;
 
-  // Echte Kundendaten-Visualisierungen
+  // Adressen-Vorschläge laden (Nominatim API)
+  const handleAdressInput = async (value: string) => {
+    setKundenAdresse(value);
+    if (value.length > 2) {
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(value)}&countrycodes=de&limit=5`
+        );
+        const data = await response.json();
+        const vorschlaege = data.map((item: any) => item.display_name);
+        setAdressVorschlaege(vorschlaege);
+        setShowAdressVorschlaege(true);
+      } catch (error) {
+        console.error("Adress-Vorschläge konnten nicht geladen werden", error);
+      }
+    } else {
+      setAdressVorschlaege([]);
+      setShowAdressVorschlaege(false);
+    }
+  };
+
+  // Echte Kundendaten-Visualisierungen (nur bei Stromänderungen aktualisieren)
   const monthlyData = Array.from({ length: 12 }, (_, i) => {
     const baseWithout = berechnetStromrechnung * (0.9 + Math.random() * 0.2);
     return {
@@ -181,6 +204,49 @@ export default function Home() {
     const canvas = signatureRef.current?.getCanvas();
     if (canvas && canvas.toDataURL() !== "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==") {
       setUnterschriftGeleistet(true);
+    }
+  };
+
+  const generatePDFFixed = async () => {
+    if (!vertragModalRef.current) return;
+
+    try {
+      // Verwende jsPDF direkt für PDF-Generierung
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      const canvas = await html2canvas(vertragModalRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: "#ffffff",
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+      const imgWidth = 210;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= 297;
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+        heightLeft -= 297;
+      }
+
+      pdf.save(`F26-Vertrag-${gesetzlicherVertreter || "Kunde"}.pdf`);
+      setShowVertragModal(false);
+      alert("PDF erfolgreich generiert und heruntergeladen!");
+    } catch (error) {
+      console.error("PDF-Generierung fehlgeschlagen:", error);
+      alert("PDF konnte nicht generiert werden. Bitte versuchen Sie es später erneut.");
     }
   };
 
@@ -359,22 +425,29 @@ export default function Home() {
               </div>
               <div>
                 <Label className="text-sm font-semibold text-slate-900 mb-2 block">Adresse</Label>
-                <div className="flex gap-2">
+                <div className="relative">
                   <Input
                     value={kundenAdresse}
-                    onChange={(e) => setKundenAdresse(e.target.value)}
-                    placeholder="Adresse"
+                    onChange={(e) => handleAdressInput(e.target.value)}
+                    placeholder="z.B. Hauptstraße 1, Berlin"
                     className="border-2 border-slate-200"
-                    readOnly
                   />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowMapPicker(true)}
-                    className="px-3"
-                  >
-                    <MapPin className="w-4 h-4" />
-                  </Button>
+                  {showAdressVorschlaege && adressVorschlaege.length > 0 && (
+                    <div className="absolute top-full left-0 right-0 bg-white border-2 border-slate-200 rounded-lg mt-1 shadow-lg z-50 max-h-40 overflow-y-auto">
+                      {adressVorschlaege.map((vorschlag, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => {
+                            setKundenAdresse(vorschlag);
+                            setShowAdressVorschlaege(false);
+                          }}
+                          className="w-full text-left px-3 py-2 hover:bg-blue-50 border-b border-slate-100 text-sm text-slate-700"
+                        >
+                          {vorschlag}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
               {inputMode === "schnell" ? (
@@ -863,7 +936,7 @@ export default function Home() {
                 </Button>
                 <Button
                   className="bg-green-600 hover:bg-green-700 text-sm"
-                  onClick={generatePDF}
+                  onClick={generatePDFFixed}
                   disabled={!unterschriftGeleistet}
                   size="sm"
                 >
