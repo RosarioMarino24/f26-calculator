@@ -6,8 +6,8 @@ import { Label } from "@/components/ui/label";
 import { ArrowRight, AlertCircle, CheckCircle2, TrendingUp, Shield, Zap, X, MapPin, ToggleLeft, ToggleRight } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 // Eigenes Canvas-System statt react-signature-canvas
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+import { Document, Packer, Paragraph, TextRun } from "docx";
+import { saveAs } from "file-saver";
 
 /**
  * F26 EnergyControl - VERKAUFS-PLATTFORM (Final)
@@ -315,133 +315,79 @@ export default function Home() {
     }
 
     try {
-      alert("PDF wird generiert... Bitte warten Sie.");
+      alert("Vertrag wird generiert... Bitte warten Sie.");
       
-      // Generiere PDF direkt im Browser mit jsPDF
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
+      // Erstelle neues DOCX-Dokument mit Kundendaten
+      const doc = new Document({
+        sections: [
+          {
+            children: [
+              new Paragraph({
+                children: [new TextRun({ text: "F26 EnergyControl", bold: true, size: 32 * 2 })],
+              }),
+              new Paragraph({
+                children: [new TextRun({ text: "Nutzungsvertrag", bold: true, size: 24 * 2 })],
+              }),
+              new Paragraph({ text: "" }),
+              new Paragraph({
+                children: [new TextRun({ text: "Standortgeber (Auftraggeber):", bold: true })],
+              }),
+              new Paragraph({
+                text: gesetzlicherVertreter || "[Name des Standortgebers]",
+              }),
+              new Paragraph({
+                text: kundenUnternehmen || "[Unternehmen]",
+              }),
+              new Paragraph({
+                text: kundenAdresse || "[Adresse]",
+              }),
+              new Paragraph({ text: "" }),
+              new Paragraph({
+                children: [new TextRun({ text: "Aufsteller (Auftragnehmer):", bold: true })],
+              }),
+              new Paragraph({
+                text: "FitForFuture Energy Nord GmbH",
+              }),
+              new Paragraph({
+                text: "Melchiorstraße 26, 10179 Berlin",
+              }),
+              new Paragraph({ text: "" }),
+              new Paragraph({
+                children: [new TextRun({ text: "Vertragsbedingungen:", bold: true })],
+              }),
+              new Paragraph({ text: "• 0€ Investition" }),
+              new Paragraph({ text: "• Einsparung ab Tag 1" }),
+              new Paragraph({ text: "• 5 Jahre Garantie" }),
+              new Paragraph({ text: "• 24/7 Überwachung" }),
+              new Paragraph({ text: "• Kostenlose Netzanalyse" }),
+              new Paragraph({ text: "" }),
+              new Paragraph({
+                children: [new TextRun({ text: "Unterschrift Kunde:", bold: true })],
+              }),
+              new Paragraph({ text: "_________________________" }),
+              new Paragraph({ text: "" }),
+              new Paragraph({
+                text: `Datum: ${new Date().toLocaleDateString("de-DE")}`,
+              }),
+            ],
+          },
+        ],
       });
-
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const margin = 15;
-      let yPosition = margin;
-
-      // Titel
-      pdf.setFontSize(18);
-      pdf.setFont(undefined, "bold");
-      pdf.text("F26 EnergyControl", margin, yPosition);
-      yPosition += 8;
-      pdf.setFontSize(14);
-      pdf.text("Nutzungsvertrag", margin, yPosition);
-      yPosition += 12;
-
-      // Kundendaten
-      pdf.setFontSize(10);
-      pdf.setFont(undefined, "normal");
-      pdf.text(`Standortgeber: ${gesetzlicherVertreter || "[Name]"}`, margin, yPosition);
-      yPosition += 5;
-      pdf.text(`Unternehmen: ${kundenUnternehmen || "[Unternehmen]"}`, margin, yPosition);
-      yPosition += 5;
-      pdf.text(`Adresse: ${kundenAdresse || "[Adresse]"}`, margin, yPosition);
-      yPosition += 5;
-      pdf.text(`Email: ${kundenEmail || "[Email]"}`, margin, yPosition);
-      yPosition += 10;
-
-      // Aufsteller
-      pdf.setFont(undefined, "bold");
-      pdf.text("Aufsteller:", margin, yPosition);
-      pdf.setFont(undefined, "normal");
-      yPosition += 5;
-      pdf.text("FitForFuture Energy Nord GmbH", margin, yPosition);
-      yPosition += 4;
-      pdf.text("Melchiorstraße 26, 10179 Berlin", margin, yPosition);
-      yPosition += 10;
-
-      // Vertragsbedingungen
-      pdf.setFont(undefined, "bold");
-      pdf.text("Vertragsbedingungen:", margin, yPosition);
-      pdf.setFont(undefined, "normal");
-      yPosition += 5;
-      const conditions = [
-        "• 0€ Investition",
-        "• Einsparung ab Tag 1",
-        "• 5 Jahre Garantie",
-        "• 24/7 Überwachung",
-        "• Kostenlose Netzanalyse"
-      ];
-      conditions.forEach((condition) => {
-        pdf.text(condition, margin + 5, yPosition);
-        yPosition += 4;
-      });
-      yPosition += 5;
-
-      // Unterschrift
-      pdf.setFont(undefined, "bold");
-      pdf.text("Unterschrift Kunde:", margin, yPosition);
-      yPosition += 8;
       
-      const canvas = signatureCanvasRef.current;
-      if (canvas && unterschriftGeleistet) {
-        const signatureImage = canvas.toDataURL("image/png");
-        pdf.addImage(signatureImage, "PNG", margin, yPosition, 60, 20);
-      } else {
-        pdf.setFont(undefined, "normal");
-        pdf.text("_________________________", margin, yPosition + 15);
-      }
-
-      // Speichern
-      const fileName = `F26-Vertrag-${gesetzlicherVertreter || "Kunde"}-${new Date().toISOString().split("T")[0]}.pdf`;
-      pdf.save(fileName);
+      // Generiere DOCX und speichere
+      const blob = await Packer.toBlob(doc);
+      const fileName = `F26-Vertrag-${gesetzlicherVertreter || "Kunde"}-${new Date().toISOString().split("T")[0]}.docx`;
+      saveAs(blob, fileName);
       
       setShowVertragModal(false);
-      alert("✓ PDF erfolgreich generiert und heruntergeladen!");
+      alert("✓ Vertrag erfolgreich generiert und heruntergeladen!");
     } catch (error) {
-      console.error("PDF-Generierung fehlgeschlagen:", error);
-      alert("PDF konnte nicht generiert werden. Fehler: " + (error as Error).message);
+      console.error("Vertrag-Generierung fehlgeschlagen:", error);
+      alert("Vertrag konnte nicht generiert werden. Fehler: " + (error as Error).message);
     }
   };
 
-  const generatePDF = async () => {
-    if (!vertragModalRef.current) return;
 
-    try {
-      const canvas = await html2canvas(vertragModalRef.current, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-      });
-
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-      });
-
-      const imgWidth = 210;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-      heightLeft -= 297;
-
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-        heightLeft -= 297;
-      }
-
-      pdf.save(`F26-Vertrag-${gesetzlicherVertreter || "Kunde"}.pdf`);
-      setShowVertragModal(false);
-    } catch (error) {
-      console.error("PDF-Generierung fehlgeschlagen:", error);
-      alert("PDF konnte nicht generiert werden. Bitte versuchen Sie es später erneut.");
-    }
-  };
 
   // ============================================
   // SCREEN 1: INTRO
