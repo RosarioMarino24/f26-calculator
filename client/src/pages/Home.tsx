@@ -30,8 +30,9 @@ type ObjectionHandler = {
 };
 
 export default function Home() {
-  const [currentScreen, setCurrentScreen] = useState<"intro" | "checkliste" | "calculator" | "info" | "success">("intro");
+  const [currentScreen, setCurrentScreen] = useState<"intro" | "checkliste" | "video" | "calculator" | "info" | "success">("intro");
   const [showCelebration, setShowCelebration] = useState(false);
+  const [videoUrl, setVideoUrl] = useState<string>("https://www.youtube.com/embed/dQw4w9WgXcQ"); // Placeholder Video ID
   
   // Checklisten-State
   const [checklisteAntworten, setChecklisteAntworten] = useState<string[]>([]);
@@ -568,19 +569,18 @@ export default function Home() {
               ))}
             </div>
 
-            {/* Animierter Counter mit Euro-Vergleich */}
+            {/* OPTIMIERUNG: Nur Prozente anzeigen (KEINE Euro!) */}
             <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 p-8 text-center">
               <p className="text-slate-600 mb-4">Basierend auf {checklisteAntworten.length} ausgewählten Gerätetypen:</p>
               <div className="space-y-4">
                 <div>
-                  <p className="text-slate-600 mb-2">Ihre monatliche Ersparnis:</p>
+                  <p className="text-slate-600 mb-2">Ihr Einsparungspotenzial:</p>
                   <p className="text-6xl font-bold text-green-600">
-                    €{displayedErsparnis.toFixed(0)}
+                    {berechnetesEinsparungspotenzial}%
                   </p>
                 </div>
                 <div className="text-lg text-slate-700">
-                  <p>Das sind <span className="font-bold text-green-600">€{(displayedErsparnis * 12).toFixed(0)}/Jahr</span></p>
-                  <p className="text-sm text-slate-600 mt-2">Wie ein zusätzliches Gehalt für Ihr Unternehmen</p>
+                  <p className="text-sm text-slate-600 mt-2">Die genauen Euro-Beträge berechnen wir im nächsten Schritt mit Ihren echten Stromkosten</p>
                 </div>
               </div>
             </Card>
@@ -611,24 +611,23 @@ export default function Home() {
               </div>
             )}
 
-            {/* VERKAUFSPSYCHOLOGIE: Glückwunsch-Box */}
+            {/* VERKAUFSPSYCHOLOG            {/* Glückwunsch-Box */}
             <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 p-6 text-center">
               <div className="flex items-center justify-center gap-2 mb-3">
                 <Heart className="w-5 h-5 text-green-600" />
                 <p className="font-semibold text-green-700">Perfekt! Wir haben Ihr Profil erfasst.</p>
               </div>
-              <p className="text-slate-700">Jetzt zeigen wir Ihnen, wie viel Sie konkret sparen können.</p>
+              <p className="text-slate-700">Jetzt zeigen wir Ihnen, wie die Technologie funktioniert.</p>
             </Card>
 
             {/* CTA Buttons */}
             <div className="flex gap-4 justify-center">
               <Button 
-                onClick={() => setCurrentScreen("calculator")}
+                onClick={() => setCurrentScreen("video")}
                 className="bg-green-600 hover:bg-green-700 text-white px-8 py-6 text-lg rounded-lg shadow-lg"
               >
-                Zum Kalkulator <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-              <Button 
+                Video ansehen <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>   <Button 
                 onClick={() => setCurrentScreen("intro")}
                 variant="outline"
                 className="px-8 py-6 text-lg rounded-lg"
@@ -644,38 +643,14 @@ export default function Home() {
       {currentScreen === "calculator" && (
         <div className="min-h-screen px-4 py-12">
           <div className="max-w-4xl mx-auto space-y-8">
-            {/* Quick-Buttons für Stromrechnung */}
+            {/* OPTIMIERUNG: Nur Eingabefeld (KEINE Quick-Buttons) */}
             <Card className="p-8 border-2 border-slate-200">
-              <h3 className="text-2xl font-bold text-slate-900 mb-6">Schnelle Eingabe: Welche Stromrechnung haben Sie?</h3>
-              <div className="grid grid-cols-3 gap-4 mb-6">
-                {[
-                  { label: "Unter 2.000€", value: 1500 },
-                  { label: "2.000-5.000€", value: 3500 },
-                  { label: "Über 5.000€", value: 7000 }
-                ].map((option) => (
-                  <Button
-                    key={option.value}
-                    onClick={() => {
-                      setStromrechnung(option.value);
-                      setInputMode("schnell");
-                    }}
-                    className={`py-6 text-lg rounded-lg transition ${
-                      stromrechnung === option.value && inputMode === "schnell"
-                        ? "bg-green-600 text-white"
-                        : "bg-slate-100 text-slate-900 hover:bg-slate-200"
-                    }`}
-                  >
-                    {option.label}
-                  </Button>
-                ))}
-              </div>
-
-              {/* Oder manuelle Eingabe */}
-              <div className="border-t pt-6">
-                <p className="text-sm text-slate-600 mb-4">Oder geben Sie Ihre Daten manuell ein:</p>
-                
+              <h3 className="text-2xl font-bold text-slate-900 mb-6">Ihre Stromkosten</h3>
+              <p className="text-slate-600 mb-6">Geben Sie Ihre monatliche Stromrechnung ein, um Ihre persönliche Einsparung zu berechnen:</p>
+              
+              <div className="space-y-6">
                 {/* Input Mode Toggle */}
-                <div className="flex gap-4 mb-6">
+                <div className="flex gap-4">
                   <Button 
                     onClick={() => setInputMode("schnell")}
                     className={`px-6 py-2 rounded-lg ${inputMode === "schnell" ? "bg-green-600 text-white" : "bg-slate-200 text-slate-900"}`}
@@ -692,16 +667,16 @@ export default function Home() {
 
                 {/* Schnell-Modus: Stromrechnung */}
                 {inputMode === "schnell" && (
-                  <div className="space-y-4">
-                    <div>
-                      <Label className="text-slate-700 font-semibold">Monatliche Stromrechnung (€)</Label>
-                      <Input 
-                        type="number" 
-                        value={stromrechnung}
-                        onChange={(e) => setStromrechnung(parseFloat(e.target.value) || 0)}
-                        className="mt-2"
-                      />
-                    </div>
+                  <div>
+                    <Label className="text-slate-700 font-semibold">Monatliche Stromrechnung (€)</Label>
+                    <Input 
+                      type="number" 
+                      placeholder="z.B. 3500"
+                      value={stromrechnung}
+                      onChange={(e) => setStromrechnung(parseFloat(e.target.value) || 0)}
+                      className="mt-2 text-lg"
+                    />
+                    <p className="text-xs text-slate-600 mt-2">Finden Sie diesen Betrag auf Ihrer letzten Stromrechnung</p>
                   </div>
                 )}
 
@@ -712,6 +687,7 @@ export default function Home() {
                       <Label className="text-slate-700 font-semibold">Stromverbrauch (kWh/Monat)</Label>
                       <Input 
                         type="number" 
+                        placeholder="z.B. 12000"
                         value={stromverbrauchKwh}
                         onChange={(e) => setStromverbrauchKwh(parseFloat(e.target.value) || 0)}
                         className="mt-2"
@@ -722,6 +698,7 @@ export default function Home() {
                       <Input 
                         type="number" 
                         step="0.01"
+                        placeholder="z.B. 0.25"
                         value={strompreis}
                         onChange={(e) => setStrompreis(parseFloat(e.target.value) || 0)}
                         className="mt-2"
@@ -1104,6 +1081,84 @@ export default function Home() {
         </div>
       )}
 
+      {/* VIDEO SCREEN - NEU! */}
+      {currentScreen === "video" && (
+        <div className="min-h-screen px-4 py-12">
+          <div className="max-w-3xl mx-auto space-y-8">
+            {/* Header */}
+            <div className="text-center space-y-4">
+              <h2 className="text-4xl font-bold text-slate-900">
+                Wie F26 EnergyControl funktioniert
+              </h2>
+              <p className="text-lg text-slate-600">
+                Sehen Sie in 2-3 Minuten, wie Sie bis zu 40% Stromkosten sparen
+              </p>
+            </div>
+
+            {/* Video Player */}
+            <Card className="overflow-hidden">
+              <div className="aspect-video bg-black flex items-center justify-center">
+                <iframe
+                  width="100%"
+                  height="100%"
+                  src={videoUrl}
+                  title="F26 EnergyControl erklärt"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                />
+              </div>
+            </Card>
+
+            {/* Zusammenfassung */}
+            <Card className="p-8 bg-green-50 border-2 border-green-200">
+              <h3 className="text-2xl font-bold text-slate-900 mb-6">Das haben Sie gerade gelernt:</h3>
+              <div className="space-y-4">
+                <div className="flex gap-4">
+                  <CheckCircle2 className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
+                  <div>
+                    <p className="font-semibold text-slate-900">Intelligente Blindleistungskompensation</p>
+                    <p className="text-sm text-slate-600">F26 optimiert Ihren Stromfluss automatisch</p>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <CheckCircle2 className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
+                  <div>
+                    <p className="font-semibold text-slate-900">Bis zu 40% Stromkosteneinsparung</p>
+                    <p className="text-sm text-slate-600">Konkrete Ergebnisse von echten Kunden</p>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <CheckCircle2 className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
+                  <div>
+                    <p className="font-semibold text-slate-900">0€ Anfangsinvestition, 5 Jahre Garantie</p>
+                    <p className="text-sm text-slate-600">Null Risiko für Sie</p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            {/* CTA Buttons */}
+            <div className="flex gap-4 justify-center">
+              <Button 
+                onClick={() => setCurrentScreen("calculator")}
+                className="bg-green-600 hover:bg-green-700 text-white px-8 py-6 text-lg rounded-lg shadow-lg"
+              >
+                Jetzt Ihre Einsparung berechnen <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+              <Button 
+                onClick={() => setCurrentScreen("checkliste")}
+                variant="outline"
+                className="px-8 py-6 text-lg rounded-lg"
+              >
+                ← Zurück
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* INFO SCREEN */}
       {currentScreen === "info" && (
         <div className="min-h-screen px-4 py-12">
@@ -1138,17 +1193,17 @@ export default function Home() {
             {/* Navigation */}
             <div className="flex gap-4 justify-center">
               <Button 
-                onClick={() => setCurrentScreen("calculator")}
-                className="bg-green-600 hover:bg-green-700 text-white px-8 py-3"
+                onClick={() => setCurrentScreen("video")}
+                className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 shadow-lg"
               >
-                Zum Kalkulator
+                Video ansehen
               </Button>
               <Button 
                 onClick={() => setCurrentScreen("intro")}
                 variant="outline"
                 className="px-8 py-3"
               >
-                Zurück zum Start
+                Zur Startseite
               </Button>
             </div>
           </div>
