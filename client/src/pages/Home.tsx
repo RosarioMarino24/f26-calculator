@@ -141,7 +141,7 @@ export default function Home() {
       name: "Thomas L.",
       unternehmen: "Produktionsbetrieb (400 kVA)",
       einsparung: 38,
-      zitat: "38% weniger Energiekosten, +490€/Monat. F26 war die beste Investition dieses Jahr.",
+      zitat: "38% weniger Energiekosten, +490€/Monat. Beste Entscheidung dieses Jahr – kostenlos und sofort profitabel.",
       geraete: "Motoren, Transformatoren, Kühlsysteme"
     }
   ];
@@ -726,17 +726,45 @@ export default function Home() {
                     </div>
 
                     {/* Vertrag Preview */}
-                    <div className="bg-slate-50 p-6 rounded-lg mb-6 space-y-4 text-sm">
-                      <p><strong>Standortgeber:</strong> {gesetzlicherVertreter || "[Name]"}</p>
-                      <p><strong>Unternehmen:</strong> {kundenUnternehmen || "[Unternehmen]"}</p>
-                      <p><strong>Adresse:</strong> {kundenAdresse || "[Adresse]"}</p>
-                      <p><strong>Aufsteller:</strong> FitForFuture Energy Nord GmbH, Melchiorstraße 26, 10179 Berlin</p>
-                      <p><strong>Laufzeit:</strong> 8 Jahre</p>
-                      <p><strong>Investition:</strong> 0€</p>
-                      <p><strong>Einsparungspotenzial:</strong> {berechnetesEinsparungspotenzial}%</p>
-                      <p><strong>Monatliche Einsparung:</strong> €{monatlicheErsparnis}</p>
-                      <p className="text-xs text-slate-600 mt-4">
-                        Durch Unterschrift bestätigen Sie, dass Sie den Vertrag gelesen und akzeptiert haben.
+                    <div className="bg-slate-50 p-6 rounded-lg mb-6 space-y-4 text-sm max-h-96 overflow-y-auto">
+                      <div className="border-b pb-4 mb-4">
+                        <p className="font-bold text-slate-900 mb-3">Vertragsbeteiligte:</p>
+                        <p><strong>Standortgeber:</strong> {gesetzlicherVertreter || "[Name]"}</p>
+                        <p><strong>Unternehmen:</strong> {kundenUnternehmen || "[Unternehmen]"}</p>
+                        <p><strong>Adresse:</strong> {kundenAdresse || "[Adresse]"}</p>
+                        <p><strong>Aufsteller:</strong> FitForFuture Energy Nord GmbH</p>
+                        <p><strong>Adresse Aufsteller:</strong> Melchiorstraße 26, 10179 Berlin</p>
+                      </div>
+                      
+                      <div className="border-b pb-4 mb-4">
+                        <p className="font-bold text-slate-900 mb-3">Vertragsbedingungen:</p>
+                        <p><strong>Laufzeit:</strong> 8 Jahre ab technischer Inbetriebnahme</p>
+                        <p><strong>Investition:</strong> 0€ (kostenfrei für Sie)</p>
+                        <p><strong>Einsparungspotenzial:</strong> {berechnetesEinsparungspotenzial}%</p>
+                        <p><strong>Monatliche Einsparung:</strong> €{monatlicheErsparnis}</p>
+                        <p><strong>Jährliche Einsparung:</strong> €{jaehrlicheErsparnis}</p>
+                      </div>
+                      
+                      <div className="border-b pb-4 mb-4">
+                        <p className="font-bold text-slate-900 mb-3">Leistungsumfang:</p>
+                        <p>✓ Kostenlose 7-Tage-Netzanalyse (IEC 61000-4-30 Klasse A)</p>
+                        <p>✓ Individuelle Auslegung auf echten Messdaten</p>
+                        <p>✓ Zertifizierte Installation durch Elektrofachkräfte</p>
+                        <p>✓ 5 Jahre Garantie (Vollgarantie)</p>
+                        <p>✓ 24/7 Überwachung und Fernüberwachung</p>
+                        <p>✓ Anlagen- & Elektronikversicherung inklusive</p>
+                      </div>
+                      
+                      <div>
+                        <p className="font-bold text-slate-900 mb-3">Zertifizierungen & Normen:</p>
+                        <p>✓ IEC 61000-4-30 Klasse A</p>
+                        <p>✓ VDE-AR-N 4110</p>
+                        <p>✓ EN 50160</p>
+                        <p>✓ Made in Germany</p>
+                      </div>
+                      
+                      <p className="text-xs text-slate-600 mt-4 border-t pt-4">
+                        Durch Unterschrift bestätigen Sie, dass Sie den Vertrag gelesen und akzeptiert haben. Der vollständige Vertrag mit allen 23 Paragraphen wird im generierten DOCX bereitgestellt.
                       </p>
                     </div>
 
