@@ -4,8 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CalculatorFlow } from "@/components/CalculatorFlow";
-import { ArrowRight, AlertCircle, CheckCircle2, TrendingUp, Shield, Zap, X, ChevronDown, Users, Lightbulb, Clock, Droplet, Wind, Gauge, Sparkles, Award, Rocket, Heart, Sun, Loader } from "lucide-react";
+import { ArrowRight, AlertCircle, CheckCircle2, TrendingUp, Shield, Zap, X, ChevronDown, Users, Lightbulb, Clock, Droplet, Wind, Gauge, Sparkles, Award, Rocket, Heart } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { Document, Packer, Paragraph, TextRun } from "docx";
 import { saveAs } from "file-saver";
@@ -34,9 +33,6 @@ export default function Home() {
   const [currentScreen, setCurrentScreen] = useState<"intro" | "checkliste" | "video" | "calculator" | "info" | "success">("intro");
   const [showCelebration, setShowCelebration] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string>("https://www.youtube.com/embed/dQw4w9WgXcQ"); // Placeholder Video ID
-  const [isCalculating, setIsCalculating] = useState(false);
-  const [showResults, setShowResults] = useState(false);
-  const [personalizedDescription, setPersonalizedDescription] = useState("");
   
   // Checklisten-State
   const [checklisteAntworten, setChecklisteAntworten] = useState<string[]>([]);
@@ -188,7 +184,6 @@ export default function Home() {
     { id: "transformatoren", label: "Transformatoren", icon: <Gauge className="w-8 h-8" /> },
     { id: "druckluft", label: "Druckluftanlagen", icon: <Wind className="w-8 h-8" /> },
     { id: "kuehl", label: "Kühlsysteme", icon: <Zap className="w-8 h-8" /> },
-    { id: "pv", label: "PV-Anlage vorhanden", icon: <Sun className="w-8 h-8" /> },
     { id: "24h", label: "24/7 Betrieb", icon: <Clock className="w-8 h-8" /> },
   ];
 
@@ -647,21 +642,377 @@ export default function Home() {
       {/* CALCULATOR SCREEN */}
       {currentScreen === "calculator" && (
         <div className="min-h-screen px-4 py-12">
-          <div className="max-w-4xl mx-auto">
-            <CalculatorFlow 
-              checklisteAntworten={checklisteAntworten}
-              berechnetesEinsparungspotenzial={berechnetesEinsparungspotenzial}
-              onBack={() => setCurrentScreen("video")}
-              onNext={() => setCurrentScreen("info")}
-            />
+          <div className="max-w-4xl mx-auto space-y-8">
+            {/* OPTIMIERUNG: Nur Eingabefeld (KEINE Quick-Buttons) */}
+            <Card className="p-8 border-2 border-slate-200">
+              <h3 className="text-2xl font-bold text-slate-900 mb-6">Ihre Stromkosten</h3>
+              <p className="text-slate-600 mb-6">Geben Sie Ihre monatliche Stromrechnung ein, um Ihre persönliche Einsparung zu berechnen:</p>
+              
+              <div className="space-y-6">
+                {/* Input Mode Toggle */}
+                <div className="flex gap-4">
+                  <Button 
+                    onClick={() => setInputMode("schnell")}
+                    className={`px-6 py-2 rounded-lg ${inputMode === "schnell" ? "bg-green-600 text-white" : "bg-slate-200 text-slate-900"}`}
+                  >
+                    Schnell
+                  </Button>
+                  <Button 
+                    onClick={() => setInputMode("genau")}
+                    className={`px-6 py-2 rounded-lg ${inputMode === "genau" ? "bg-green-600 text-white" : "bg-slate-200 text-slate-900"}`}
+                  >
+                    Genau
+                  </Button>
+                </div>
+
+                {/* Schnell-Modus: Stromrechnung */}
+                {inputMode === "schnell" && (
+                  <div>
+                    <Label className="text-slate-700 font-semibold">Monatliche Stromrechnung (€)</Label>
+                    <Input 
+                      type="number" 
+                      placeholder="z.B. 3500"
+                      value={stromrechnung}
+                      onChange={(e) => setStromrechnung(parseFloat(e.target.value) || 0)}
+                      className="mt-2 text-lg"
+                    />
+                    <p className="text-xs text-slate-600 mt-2">Finden Sie diesen Betrag auf Ihrer letzten Stromrechnung</p>
+                  </div>
+                )}
+
+                {/* Genau-Modus: Verbrauch + Preis */}
+                {inputMode === "genau" && (
+                  <div className="space-y-4">
+                    <div>
+                      <Label className="text-slate-700 font-semibold">Stromverbrauch (kWh/Monat)</Label>
+                      <Input 
+                        type="number" 
+                        placeholder="z.B. 12000"
+                        value={stromverbrauchKwh}
+                        onChange={(e) => setStromverbrauchKwh(parseFloat(e.target.value) || 0)}
+                        className="mt-2"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-slate-700 font-semibold">Strompreis (€/kWh)</Label>
+                      <Input 
+                        type="number" 
+                        step="0.01"
+                        placeholder="z.B. 0.25"
+                        value={strompreis}
+                        onChange={(e) => setStrompreis(parseFloat(e.target.value) || 0)}
+                        className="mt-2"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </Card>
+
+            {/* Kundendaten-Formular */}
+            <Card className="p-8 border-2 border-slate-200">
+              <h3 className="text-2xl font-bold text-slate-900 mb-6">Ihre Kontaktdaten</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-slate-700 font-semibold">Gesetzlicher Vertreter</Label>
+                  <Input 
+                    placeholder="Name"
+                    value={gesetzlicherVertreter}
+                    onChange={(e) => setGesetzlicherVertreter(e.target.value)}
+                    className="mt-2"
+                  />
+                </div>
+                <div>
+                  <Label className="text-slate-700 font-semibold">Unternehmen</Label>
+                  <Input 
+                    placeholder="Firmenname"
+                    value={kundenUnternehmen}
+                    onChange={(e) => setKundenUnternehmen(e.target.value)}
+                    className="mt-2"
+                  />
+                </div>
+                <div className="col-span-2">
+                  <Label className="text-slate-700 font-semibold">Adresse</Label>
+                  <div className="relative">
+                    <Input 
+                      placeholder="Straße, Hausnummer, PLZ, Stadt"
+                      value={kundenAdresse}
+                      onChange={(e) => handleAdressInput(e.target.value)}
+                      className="mt-2"
+                    />
+                    {showAdressVorschlaege && adressVorschlaege.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 bg-white border border-slate-300 rounded-lg mt-1 z-10 max-h-48 overflow-y-auto">
+                        {adressVorschlaege.map((addr, i) => (
+                          <button
+                            key={i}
+                            onClick={() => {
+                              setKundenAdresse(addr);
+                              setShowAdressVorschlaege(false);
+                            }}
+                            className="w-full text-left p-3 hover:bg-slate-100 border-b last:border-b-0 text-sm"
+                          >
+                            {addr}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="col-span-2">
+                  <Label className="text-slate-700 font-semibold">Email</Label>
+                  <Input 
+                    type="email"
+                    placeholder="email@example.com"
+                    value={kundenEmail}
+                    onChange={(e) => setKundenEmail(e.target.value)}
+                    className="mt-2"
+                  />
+                </div>
+              </div>
+            </Card>
+
+            {/* Ergebnisse */}
+            <Card className="bg-gradient-to-r from-green-600 to-emerald-600 text-white p-8">
+              <div className="grid grid-cols-3 gap-8 text-center">
+                <div>
+                  <p className="text-green-100 mb-2">Monatliche Ersparnis</p>
+                  <p className="text-4xl font-bold">€{monatlicheErsparnis}</p>
+                </div>
+                <div>
+                  <p className="text-green-100 mb-2">Jährliche Ersparnis</p>
+                  <p className="text-4xl font-bold">€{jaehrlicheErsparnis}</p>
+                </div>
+                <div>
+                  <p className="text-green-100 mb-2">Einsparungsquote</p>
+                  <p className="text-4xl font-bold">{berechnetesEinsparungspotenzial}%</p>
+                </div>
+              </div>
+            </Card>
+
+            {/* Visualisierungen */}
+            <Card className="p-8">
+              <h3 className="text-2xl font-bold text-slate-900 mb-6">Ihre Einsparung im Jahresverlauf</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={monthlyData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="ohne" fill="#EF4444" name="Ohne F26" />
+                  <Bar dataKey="mit" fill="#10B981" name="Mit F26" />
+                </BarChart>
+              </ResponsiveContainer>
+            </Card>
+
+            {/* Pie Chart */}
+            <Card className="p-8">
+              <h3 className="text-2xl font-bold text-slate-900 mb-6">Woher kommt die Einsparung?</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={savingsData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, value }) => `${name}: ${value}%`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {savingsData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.fill} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </Card>
+
+            {/* VERKAUFSPSYCHOLOGIE: Kontextuelle Einwand-Handler (nur TOP 2-3) */}
+            <Card className="p-8 border-2 border-slate-200">
+              <h3 className="text-2xl font-bold text-slate-900 mb-6">Die wichtigsten Fragen, die wir täglich bekommen</h3>
+              <div className="space-y-3">
+                {relevantObjections.map((handler) => (
+                  <div key={handler.id} className={`border-2 rounded-lg overflow-hidden ${handler.color}`}>
+                    <button
+                      onClick={() => setActiveObjection(activeObjection === handler.id ? null : handler.id)}
+                      className="w-full p-4 flex items-center justify-between hover:bg-black hover:bg-opacity-5 transition"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="text-slate-700">{handler.icon}</div>
+                        <p className="font-semibold text-slate-900">{handler.title}</p>
+                      </div>
+                      <ChevronDown 
+                        className={`w-5 h-5 transition ${activeObjection === handler.id ? "rotate-180" : ""}`}
+                      />
+                    </button>
+                    {activeObjection === handler.id && (
+                      <div className="p-4 border-t bg-white bg-opacity-50">
+                        {handler.content}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            {/* Unterschrift & Vertragsbestätigung */}
+            <Card className="p-8 border-2 border-green-200 bg-green-50">
+              <h3 className="text-2xl font-bold text-slate-900 mb-6">📋 Unterschrift & Vertragsbestätigung</h3>
+              <Button 
+                onClick={() => setShowVertragModal(true)}
+                className="w-full bg-green-600 hover:bg-green-700 text-white py-6 text-lg rounded-lg"
+              >
+                Vertrag anzeigen & unterschreiben
+              </Button>
+              <p className="text-sm text-slate-600 mt-3">Klicken Sie hier, um den Vertrag zu sehen und zu unterschreiben</p>
+            </Card>
+
+            {/* Navigation */}
+            <div className="flex gap-4 justify-center">
+              <Button 
+                onClick={() => setCurrentScreen("checkliste")}
+                variant="outline"
+                className="px-8 py-3"
+              >
+                ← Zurück
+              </Button>
+              <Button 
+                onClick={() => setCurrentScreen("info")}
+                variant="outline"
+                className="px-8 py-3"
+              >
+                Mehr erfahren
+              </Button>
+            </div>
+
+            {/* Unterschrift Modal */}
+            {showVertragModal && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto p-8">
+                  <div className="flex items-center justify-between mb-6">
+                    <div>
+                      <h4 className="text-2xl font-bold text-slate-900">Vertrag & Unterschrift</h4>
+                      <p className="text-sm text-slate-600 mt-1">Sie sind 1 Schritt vom Erfolg entfernt</p>
+                    </div>
+                    <button onClick={() => setShowVertragModal(false)}>
+                      <X className="w-6 h-6" />
+                    </button>
+                  </div>
+
+                  {/* VERKAUFSPSYCHOLOGIE: Vertrauens-Hinweis */}
+                  <div className="bg-green-50 border-l-4 border-l-green-600 p-4 rounded mb-6">
+                    <p className="text-sm text-slate-700">
+                      <span className="font-semibold text-green-700">✓ Ihre Unterschrift = Ihre Garantie</span>
+                      <br />
+                      Mit Ihrer Unterschrift erhalten Sie 8 Jahre sorgenfrei Nutzen, kostenlose Netzanalyse und Einsparungen ab Tag 1.
+                    </p>
+                  </div>
+
+                  {/* Vertrag Preview */}
+                  <div className="bg-slate-50 p-6 rounded-lg mb-6 space-y-4 text-sm max-h-96 overflow-y-auto">
+                    <div className="border-b pb-4 mb-4">
+                      <p className="font-bold text-slate-900 mb-3">Vertragsbeteiligte:</p>
+                      <p><strong>Standortgeber:</strong> {gesetzlicherVertreter || "[Name]"}</p>
+                      <p><strong>Unternehmen:</strong> {kundenUnternehmen || "[Unternehmen]"}</p>
+                      <p><strong>Adresse:</strong> {kundenAdresse || "[Adresse]"}</p>
+                      <p><strong>Aufsteller:</strong> FitForFuture Energy Nord GmbH</p>
+                      <p><strong>Adresse Aufsteller:</strong> Melchiorstraße 26, 10179 Berlin</p>
+                    </div>
+                    
+                    <div className="border-b pb-4 mb-4">
+                      <p className="font-bold text-slate-900 mb-3">Vertragsbedingungen:</p>
+                      <p><strong>Laufzeit:</strong> 8 Jahre ab technischer Inbetriebnahme</p>
+                      <p><strong>Investition:</strong> 0€ (kostenfrei für Sie)</p>
+                      <p><strong>Einsparungspotenzial:</strong> {berechnetesEinsparungspotenzial}%</p>
+                      <p><strong>Monatliche Einsparung:</strong> €{monatlicheErsparnis}</p>
+                      <p><strong>Jährliche Einsparung:</strong> €{jaehrlicheErsparnis}</p>
+                    </div>
+                    
+                    <div className="border-b pb-4 mb-4">
+                      <p className="font-bold text-slate-900 mb-3">Leistungsumfang:</p>
+                      <p>✓ Kostenlose 7-Tage-Netzanalyse (IEC 61000-4-30 Klasse A)</p>
+                      <p>✓ Individuelle Auslegung auf echten Messdaten</p>
+                      <p>✓ Zertifizierte Installation durch Elektrofachkräfte</p>
+                      <p>✓ 8 Jahre sorgenfrei Nutzen (Vollgarantie)</p>
+                      <p>✓ 24/7 Überwachung und Fernüberwachung</p>
+                      <p>✓ Anlagen- & Elektronikversicherung inklusive</p>
+                    </div>
+                    
+                    <div>
+                      <p className="font-bold text-slate-900 mb-3">Zertifizierungen & Normen:</p>
+                      <p>✓ IEC 61000-4-30 Klasse A</p>
+                      <p>✓ VDE-AR-N 4110</p>
+                      <p>✓ EN 50160</p>
+                      <p>✓ Made in Germany</p>
+                    </div>
+                    
+                    <p className="text-xs text-slate-600 mt-4 border-t pt-4">
+                      Durch Unterschrift bestätigen Sie, dass Sie den Vertrag gelesen und akzeptiert haben. Der vollständige Vertrag mit allen 23 Paragraphen wird im generierten DOCX bereitgestellt.
+                    </p>
+                  </div>
+
+                  {/* Unterschriftsfeld */}
+                  <div className="mb-6">
+                    <Label className="text-slate-700 font-semibold">Ihre Unterschrift</Label>
+                    <canvas
+                      ref={signatureCanvasRef}
+                      width={600}
+                      height={150}
+                      onMouseDown={startDrawing}
+                      onMouseMove={draw}
+                      onMouseUp={stopDrawing}
+                      onMouseLeave={stopDrawing}
+                      className="border-2 border-slate-300 rounded-lg mt-2 bg-white cursor-crosshair w-full"
+                      style={{ touchAction: "none" }}
+                    />
+                    <Button 
+                      onClick={clearSignature}
+                      variant="outline"
+                      className="mt-2 w-full"
+                    >
+                      Unterschrift löschen
+                    </Button>
+                  </div>
+
+                  {/* Checkbox - Unterschrift = Garantie */}
+                  <div className="flex items-center gap-3 mb-6">
+                    <input
+                      type="checkbox"
+                      id="vertrag-accept"
+                      checked={unterschriftGeleistet}
+                      onChange={(e) => setUnterschriftGeleistet(e.target.checked)}
+                      className="w-5 h-5"
+                    />
+                    <label htmlFor="vertrag-accept" className="text-slate-700">
+                      Ich akzeptiere die <strong>5-Jahre-Vollgarantie</strong> und die Vertragsbedingungen
+                    </label>
+                  </div>
+
+                  {/* CTA Buttons */}
+                  <div className="flex gap-4">
+                    <Button 
+                      onClick={generatePDF}
+                      disabled={!unterschriftGeleistet}
+                      className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg disabled:opacity-50"
+                    >
+                      Weiter → DOCX generieren
+                    </Button>
+                    <Button 
+                      onClick={() => setShowVertragModal(false)}
+                      variant="outline"
+                      className="flex-1"
+                    >
+                      Abbrechen
+                    </Button>
+                  </div>
+                </Card>
+              </div>
+            )}
           </div>
         </div>
       )}
-
-      {/* INFO SCREEN (Kundendaten + Einwand-Handler) */}
-      {currentScreen === "info" && (
-        <div className="min-h-screen px-4 py-12">
-          <div className="max-w-4xl mx-auto space-y-8">
 
       {/* SUCCESS SCREEN */}
       {currentScreen === "success" && (
