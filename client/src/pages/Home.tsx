@@ -296,7 +296,7 @@ export default function Home() {
               run: { size: 24 }
             }),
             new Paragraph({
-              text: "Garantie: 5 Jahre Vollgarantie",
+              text: "Garantie: 8 Jahre sorgenfrei Nutzen",
               run: { size: 24 }
             }),
             new Paragraph({ text: "" }),
@@ -396,7 +396,7 @@ export default function Home() {
       content: (
         <div className="space-y-3">
           <p className="font-semibold text-gray-900">Zertifiziert & geprüft – 15+ Jahre Erfahrung</p>
-          <p className="text-gray-700">IEC 61000-4-30 Klasse A, VDE-AR-N 4110, EN 50160, Made in Germany, 5 Jahre Garantie</p>
+          <p className="text-gray-700">IEC 61000-4-30 Klasse A, VDE-AR-N 4110, EN 50160, Made in Germany, 8 Jahre sorgenfrei Nutzen</p>
           <p className="text-sm text-green-700 font-semibold">→ Vertrauen Sie auf Qualität</p>
         </div>
       )
@@ -906,7 +906,7 @@ export default function Home() {
                     <p className="text-sm text-slate-700">
                       <span className="font-semibold text-green-700">✓ Ihre Unterschrift = Ihre Garantie</span>
                       <br />
-                      Mit Ihrer Unterschrift erhalten Sie 5 Jahre Vollgarantie, kostenlose Netzanalyse und Einsparungen ab Tag 1.
+                      Mit Ihrer Unterschrift erhalten Sie 8 Jahre sorgenfrei Nutzen, kostenlose Netzanalyse und Einsparungen ab Tag 1.
                     </p>
                   </div>
 
@@ -935,7 +935,7 @@ export default function Home() {
                       <p>✓ Kostenlose 7-Tage-Netzanalyse (IEC 61000-4-30 Klasse A)</p>
                       <p>✓ Individuelle Auslegung auf echten Messdaten</p>
                       <p>✓ Zertifizierte Installation durch Elektrofachkräfte</p>
-                      <p>✓ 5 Jahre Garantie (Vollgarantie)</p>
+                      <p>✓ 8 Jahre sorgenfrei Nutzen (Vollgarantie)</p>
                       <p>✓ 24/7 Überwachung und Fernüberwachung</p>
                       <p>✓ Anlagen- & Elektronikversicherung inklusive</p>
                     </div>
@@ -1132,7 +1132,7 @@ export default function Home() {
                 <div className="flex gap-4">
                   <CheckCircle2 className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
                   <div>
-                    <p className="font-semibold text-slate-900">0€ Anfangsinvestition, 5 Jahre Garantie</p>
+                    <p className="font-semibold text-slate-900">0€ Anfangsinvestition, 8 Jahre sorgenfrei Nutzen</p>
                     <p className="text-sm text-slate-600">Null Risiko für Sie</p>
                   </div>
                 </div>
@@ -1176,7 +1176,7 @@ export default function Home() {
                   { title: "Kostenlose Netzanalyse", desc: "7 Tage - IEC 61000-4-30 Klasse A - Harmonische bis Ord. 50" },
                   { title: "Individuelle Auslegung", desc: "Auf echten Messdaten - PV-Berücksichtigung - schriftliche Empfehlung" },
                   { title: "Zertifizierte Installation", desc: "Durch zertifizierte Elektrofachkräfte - Inbetriebnahme - Funktionsprüfung" },
-                  { title: "5 Jahre Garantie", desc: "Vollgarantie - Check-up nach 2 Jahren - wartungsarm konstruiert" },
+                  { title: "8 Jahre sorgenfrei Nutzen", desc: "Vollgarantie - Check-up nach 2 Jahren - wartungsarm konstruiert" },
                   { title: "24/7 Überwachung", desc: "Fernüberwachung - Anlagen- & Elektronikversicherung - Bypass bei Störung" },
                 ].map((item, i) => (
                   <div key={i} className="flex gap-4 p-4 bg-slate-50 rounded-lg">
