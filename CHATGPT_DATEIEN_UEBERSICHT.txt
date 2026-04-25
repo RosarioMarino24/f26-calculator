@@ -1,0 +1,84 @@
+================================================================================
+WICHTIGE DATEIEN FÜR CHATGPT - F26 CALCULATOR
+================================================================================
+
+📋 DOKUMENTATION:
+================================================================================
+1. /home/ubuntu/CHATGPT_HANDOVER.md
+   → HAUPTDOKUMENT - Alles was ChatGPT wissen muss
+   → Projekt-Kontext, Anforderungen, Lösungs-Strategie
+   → Checkliste für Umsetzung
+
+2. /home/ubuntu/PROBLEM_BESCHREIBUNG.md
+   → Detaillierte Analyse des Problems
+   → Zwei Lösungs-Optionen (Schnell vs. Besser)
+   → Technische Details
+
+3. /home/ubuntu/KLING_AI_SZENEN_BRIEFS_V3.md
+   → Video-Anforderungen für Doodly
+   → 6 Szenen mit detaillierten Beschreibungen
+   → Voice-Over Scripts
+
+================================================================================
+💻 PROJEKT-DATEIEN:
+================================================================================
+Projekt-Pfad: /home/ubuntu/f26-calculator/
+
+WICHTIGSTE DATEIEN:
+- client/src/pages/Home.tsx (1218 Zeilen - zu refaktorieren)
+- client/src/components/CalculatorFlow.tsx (bereits erstellt ✅)
+- client/src/index.css (Design-Tokens)
+- package.json (Dependencies)
+
+NEUE KOMPONENTEN (zu erstellen):
+- client/src/components/CalculatorInput.tsx
+- client/src/components/CalculatorResults.tsx
+- client/src/components/PersonalizedDescription.tsx
+- client/src/components/CustomerDataForm.tsx
+- client/src/components/ContractSignature.tsx
+
+================================================================================
+🔧 SETUP FÜR CHATGPT:
+================================================================================
+
+1. PROJEKT ÖFFNEN:
+   cd /home/ubuntu/f26-calculator
+
+2. DEPENDENCIES INSTALLIEREN:
+   pnpm install
+
+3. DEV-SERVER STARTEN:
+   pnpm dev
+   → Öffne: http://localhost:3000
+
+4. BUILD TESTEN:
+   pnpm build
+
+================================================================================
+✅ AKTUELLE COMMITS (GitHub):
+================================================================================
+Checkpoint: 8d6a0868
+- CalculatorFlow.tsx erstellt
+- PV-Anlage zur Checkliste hinzugefügt
+- Integration fehlgeschlagen (Rollback durchgeführt)
+- Website funktioniert wieder
+
+================================================================================
+🎯 AUFGABE FÜR CHATGPT:
+================================================================================
+
+OPTION 2 EMPFOHLEN (2-3 Stunden):
+
+1. Home.tsx in mehrere Screens aufteilen
+2. Neue Komponenten erstellen
+3. State-Verwaltung refaktorieren
+4. CalculatorFlow integrieren
+5. Personalisierte Beschreibung implementieren
+6. Testing durchführen
+7. Checkpoint erstellen
+
+================================================================================
+📞 FRAGEN?
+================================================================================
+Alles ist in /home/ubuntu/CHATGPT_HANDOVER.md dokumentiert!
+
