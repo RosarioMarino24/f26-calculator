@@ -151,7 +151,7 @@ export default function Home() {
       name: "Frank M.",
       unternehmen: "Werkstatt für Metallbearbeitung",
       einsparung: 29,
-      zitat: "Mit F26 sparen wir jetzt 29% der Stromkosten. Die Amortisation war nach 9 Monaten erreicht.",
+      zitat: "Mit F26 sparen wir jetzt 29% der Stromkosten. Die Einsparungen haben uns Liquidität für andere Anschaffungen gegeben.",
       geraete: ["motoren", "druckluft"],
       icon: <Zap className="w-8 h-8" />
     },
