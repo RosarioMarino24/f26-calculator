@@ -867,57 +867,49 @@ export default function Home() {
                   onMouseDown={(e) => setTouchStart(e.clientX)}
                   onMouseUp={(e) => setTouchEnd(e.clientX)}
                 >
-                  {/* Linien-Diagramm (OHNE Zahlen/Achsen) */}
+                  {/* Balken-Vergleich Diagramm */}
                   {swipeIndex === 0 && (
                     <div className="transition-opacity duration-300">
                       <ResponsiveContainer width="100%" height={300}>
-                        <LineChart data={monthlyData}>
-                          <Line 
-                            type="monotone" 
-                            dataKey="ohne" 
-                            stroke="#EF4444" 
-                            strokeWidth={3}
-                            dot={false}
-                            isAnimationActive={true}
+                        <BarChart data={[{
+                          name: 'Vergleich',
+                          'Ohne F26': calculatorResults.yearly / 1000,
+                          'Mit F26': (calculatorResults.yearly / 1000) * (1 - calculatorResults.percent / 100),
+                        }]}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                          <XAxis dataKey="name" />
+                          <YAxis label={{ value: 'Jährliche Kosten (€1000)', angle: -90, position: 'insideLeft' }} />
+                          <Tooltip 
+                            formatter={(value: any) => `€${(value * 1000).toFixed(0)}`}
+                            labelFormatter={() => 'Jahreskosten'}
                           />
-                          <Line 
-                            type="monotone" 
-                            dataKey="mit" 
-                            stroke="#10B981" 
-                            strokeWidth={3}
-                            dot={false}
-                            isAnimationActive={true}
-                          />
-                        </LineChart>
+                          <Legend />
+                          <Bar dataKey="Ohne F26" fill="#EF4444" radius={[8, 8, 0, 0]} />
+                          <Bar dataKey="Mit F26" fill="#10B981" radius={[8, 8, 0, 0]} />
+                        </BarChart>
                       </ResponsiveContainer>
-                      <p className="text-center text-slate-600 mt-4 text-sm">← Swipe nach rechts für Zahlen →</p>
+                      <p className="text-center text-slate-600 mt-4 text-sm">← Swipe nach rechts für Zusammenfassung →</p>
                     </div>
                   )}
                   
-                  {/* Zahlen-Tabelle (Nach Swipe) */}
+                  {/* Grüner Block mit Zusammenfassung (Nach Swipe) */}
                   {swipeIndex === 1 && (
                     <div className="transition-opacity duration-300">
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="border-b-2 border-slate-300">
-                              <th className="text-left py-2 px-2 font-bold">Monat</th>
-                              <th className="text-right py-2 px-2 font-bold text-red-600">Ohne F26</th>
-                              <th className="text-right py-2 px-2 font-bold text-green-600">Mit F26</th>
-                              <th className="text-right py-2 px-2 font-bold text-blue-600">Ersparnis</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {monthlyData.map((row, idx) => (
-                              <tr key={idx} className="border-b border-slate-200 hover:bg-slate-50">
-                                <td className="py-2 px-2">{row.month}</td>
-                                <td className="text-right py-2 px-2 text-red-600">€{row.ohne}</td>
-                                <td className="text-right py-2 px-2 text-green-600">€{row.mit}</td>
-                                <td className="text-right py-2 px-2 font-bold text-blue-600">€{row.ohne - row.mit}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                      <div className="bg-gradient-to-br from-green-500 to-emerald-600 text-white p-8 rounded-xl shadow-lg">
+                        <div className="grid grid-cols-1 gap-6">
+                          <div>
+                            <p className="text-green-100 text-sm font-semibold mb-2">Monatliche Ersparnis</p>
+                            <p className="text-4xl font-bold">€{calculatorResults.monthly}</p>
+                          </div>
+                          <div>
+                            <p className="text-green-100 text-sm font-semibold mb-2">Jährliche Ersparnis</p>
+                            <p className="text-4xl font-bold">€{calculatorResults.yearly}</p>
+                          </div>
+                          <div>
+                            <p className="text-green-100 text-sm font-semibold mb-2">Einsparungsquote</p>
+                            <p className="text-4xl font-bold">{calculatorResults.percent}%</p>
+                          </div>
+                        </div>
                       </div>
                       <p className="text-center text-slate-600 mt-4 text-sm">← Swipe nach links für Diagramm →</p>
                     </div>
