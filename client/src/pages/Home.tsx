@@ -31,7 +31,8 @@ type ObjectionHandler = {
 };
 
 export default function Home() {
-  const [currentScreen, setCurrentScreen] = useState<"intro" | "checkliste" | "video" | "calculator" | "info" | "success">("intro");
+  const [currentScreen, setCurrentScreen] = useState<"intro" | "checkliste" | "video" | "vorabbehandlung" | "calculator" | "info" | "success">("intro");
+  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string>("https://www.youtube.com/embed/dQw4w9WgXcQ"); // Placeholder Video ID
   
@@ -873,14 +874,14 @@ export default function Home() {
                       <ResponsiveContainer width="100%" height={300}>
                         <RadarChart data={[
                           { name: 'Einsparung', vorher: 20, neu: Math.min(calculatorResults.percent * 4.3, 100) },
-                          { name: 'Haltbarkeit', vorher: 50, neu: 95 },
+                          { name: 'Geräte-Lebensdauer', vorher: 50, neu: 95 },
                           { name: 'CO2-Ersparnis', vorher: 30, neu: Math.min(calculatorResults.percent * 3.7, 100) },
                         ]}>
                           <PolarGrid stroke="#e5e7eb" />
                           <PolarAngleAxis dataKey="name" stroke="#64748b" tick={{ fontSize: 12 }} />
                           <PolarRadiusAxis angle={90} domain={[0, 100]} stroke="#cbd5e1" />
-                          <Radar name="Vorher (ohne F26)" dataKey="vorher" stroke="#EF4444" fill="#EF4444" fillOpacity={0.3} />
-                          <Radar name="Neu (mit F26)" dataKey="neu" stroke="#10B981" fill="#10B981" fillOpacity={0.6} />
+                          <Radar name="Vorher (ohne F26)" dataKey="vorher" stroke="#DC2626" fill="#DC2626" fillOpacity={0.5} strokeWidth={3} />
+                          <Radar name="Neu (mit F26)" dataKey="neu" stroke="#10B981" fill="#10B981" fillOpacity={0.6} strokeWidth={3} />
                           <Legend />
                         </RadarChart>
                       </ResponsiveContainer>
@@ -1261,7 +1262,7 @@ export default function Home() {
             {/* CTA Buttons */}
             <div className="flex gap-4 justify-center">
               <Button 
-                onClick={() => setCurrentScreen("calculator")}
+                onClick={() => setCurrentScreen("vorabbehandlung")}
                 className="bg-green-600 hover:bg-green-700 text-white px-8 py-6 text-lg rounded-lg shadow-lg"
               >
                 Jetzt Ihre Einsparung berechnen <ArrowRight className="ml-2 w-5 h-5" />
@@ -1278,6 +1279,137 @@ export default function Home() {
         </div>
       )}
 
+      {/* VORABBEHANDLUNG SCREEN - FAQ */}
+      {currentScreen === "vorabbehandlung" && (
+        <div className="min-h-screen px-4 py-12 bg-gradient-to-b from-slate-50 to-white">
+          <div className="max-w-3xl mx-auto space-y-8">
+            {/* Header */}
+            <div className="text-center space-y-4">
+              <h2 className="text-4xl font-bold text-slate-900">
+                Häufig gestellte Fragen
+              </h2>
+              <p className="text-lg text-slate-600">
+                Wir nehmen Ihre Sorgen ernst. Hier sind die Antworten auf die wichtigsten Fragen unserer Kunden.
+              </p>
+            </div>
+
+            {/* FAQ Items */}
+            <div className="space-y-4">
+              {/* FAQ 1 */}
+              <Card className="overflow-hidden border-2 border-slate-200 hover:border-green-400 transition-colors">
+                <button
+                  onClick={() => setExpandedFaq(expandedFaq === 0 ? null : 0)}
+                  className="w-full p-6 text-left flex justify-between items-start hover:bg-slate-50 transition-colors"
+                >
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-slate-900 mb-2">Ist das als Pächter überhaupt erlaubt?</h3>
+                    <p className="text-slate-600">Ja! Die Installation der F26 ist eine Maßnahme zur Betriebskostensenkung, die Ihre Bausubstanz unberührt lässt. Da die Anlage mobil ist und parallel geschaltet wird, fällt dies in Ihre Entscheidungshoheit als Pächter.</p>
+                  </div>
+                  <ChevronDown className={`w-5 h-5 text-green-600 flex-shrink-0 ml-4 transition-transform ${expandedFaq === 0 ? 'rotate-180' : ''}`} />
+                </button>
+                {expandedFaq === 0 && (
+                  <div className="px-6 pb-6 bg-green-50 border-t-2 border-green-200">
+                    <p className="text-slate-700">Gemäß unserem Nutzungs-Vertrag (§ 7) wird die Anlage kein wesentlicher Bestandteil des Gebäudes. Sie bleibt mobiles Eigentum des Aufstellers. Bei einem Umzug oder nach Vertragsende wird das Gerät einfach demontiert und der ursprüngliche Zustand Ihrer Elektroverteilung wiederhergestellt. Sie modernisieren Ihr Netz, ohne den Vermieter finanziell oder baulich zu belasten.</p>
+                  </div>
+                )}
+              </Card>
+
+              {/* FAQ 2 */}
+              <Card className="overflow-hidden border-2 border-slate-200 hover:border-green-400 transition-colors">
+                <button
+                  onClick={() => setExpandedFaq(expandedFaq === 1 ? null : 1)}
+                  className="w-full p-6 text-left flex justify-between items-start hover:bg-slate-50 transition-colors"
+                >
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-slate-900 mb-2">Schadet das meinen technischen Geräten?</h3>
+                    <p className="text-slate-600">Ganz im Gegenteil: Die F26 schützt Ihre Hardware! Durch die Reinigung des Stromnetzes von Oberschwingungen und Blindstrom werden Ihre Geräte weniger heiß und leben länger.</p>
+                  </div>
+                  <ChevronDown className={`w-5 h-5 text-green-600 flex-shrink-0 ml-4 transition-transform ${expandedFaq === 1 ? 'rotate-180' : ''}`} />
+                </button>
+                {expandedFaq === 1 && (
+                  <div className="px-6 pb-6 bg-green-50 border-t-2 border-green-200">
+                    <p className="text-slate-700">Die Anlage ist nach den strengsten deutschen Industrienormen (VDE-AR-N 4110 und EN 50160) zertifiziert. Sie reduziert thermische Verluste in Ihren Leitungen und sorgt für eine stabilere Spannung. Besonders empfindliche Gastronomie-Technik wie Kaffeemaschinen, Kühlsysteme und Computer profitieren von der verbesserten Stromqualität. Eine automatische Bypass-Schaltung garantiert zudem, dass Ihr Betrieb bei einer Wartung niemals ohne Strom dasteht.</p>
+                  </div>
+                )}
+              </Card>
+
+              {/* FAQ 3 */}
+              <Card className="overflow-hidden border-2 border-slate-200 hover:border-green-400 transition-colors">
+                <button
+                  onClick={() => setExpandedFaq(expandedFaq === 2 ? null : 2)}
+                  className="w-full p-6 text-left flex justify-between items-start hover:bg-slate-50 transition-colors"
+                >
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-slate-900 mb-2">Wer kümmert sich um Reparatur und Wartung?</h3>
+                    <p className="text-slate-600">Sie genießen ein Rundum-sorglos-Paket. Wir übernehmen die komplette Wartung, das 24/7-Monitoring und bieten 8 Jahre sorgenfrei Nutzen – für Sie entstehen keinerlei Kosten.</p>
+                  </div>
+                  <ChevronDown className={`w-5 h-5 text-green-600 flex-shrink-0 ml-4 transition-transform ${expandedFaq === 2 ? 'rotate-180' : ''}`} />
+                </button>
+                {expandedFaq === 2 && (
+                  <div className="px-6 pb-6 bg-green-50 border-t-2 border-green-200">
+                    <p className="text-slate-700">Unsere Systeme werden in Deutschland gefertigt und sind per Fernüberwachung rund um die Uhr mit unserer Zentrale verbunden. Sollte ein Bauteil optimiert werden müssen, erledigen wir das oft, bevor Sie es merken. Nach zwei Jahren erfolgt zudem ein kostenloser System-Check-up. Sie stellen lediglich den Platz zur Verfügung; das technische Risiko tragen zu 100 % wir.</p>
+                  </div>
+                )}
+              </Card>
+
+              {/* FAQ 4 */}
+              <Card className="overflow-hidden border-2 border-slate-200 hover:border-green-400 transition-colors">
+                <button
+                  onClick={() => setExpandedFaq(expandedFaq === 3 ? null : 3)}
+                  className="w-full p-6 text-left flex justify-between items-start hover:bg-slate-50 transition-colors"
+                >
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-slate-900 mb-2">Warum ist das wirklich kostenlos? Wo ist der Haken?</h3>
+                    <p className="text-slate-600">Es gibt keinen Haken, nur einen fairen Tausch: Sie erhalten die volle Stromkostenersparnis (ca. 15-30 %), während wir die durch die Einsparung entstehenden CO₂-Zertifikate wirtschaftlich verwerten.</p>
+                  </div>
+                  <ChevronDown className={`w-5 h-5 text-green-600 flex-shrink-0 ml-4 transition-transform ${expandedFaq === 3 ? 'rotate-180' : ''}`} />
+                </button>
+                {expandedFaq === 3 && (
+                  <div className="px-6 pb-6 bg-green-50 border-t-2 border-green-200">
+                    <p className="text-slate-700">Die F26 senkt Ihren CO₂-Fußabdruck messbar. Diese Umweltwerte (Zertifikate) haben an der Börse einen Wert. Da die Vermarktung dieser Zertifikate für Einzelbetriebe zu komplex ist, übernehmen wir diesen Prozess komplett. Aus diesen Erlösen finanzieren wir die Hardware, die Montage und den Service. Sie sparen echtes Geld auf Ihrer Stromrechnung, ohne selbst investieren zu müssen.</p>
+                  </div>
+                )}
+              </Card>
+
+              {/* FAQ 5 */}
+              <Card className="overflow-hidden border-2 border-slate-200 hover:border-green-400 transition-colors">
+                <button
+                  onClick={() => setExpandedFaq(expandedFaq === 4 ? null : 4)}
+                  className="w-full p-6 text-left flex justify-between items-start hover:bg-slate-50 transition-colors"
+                >
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-slate-900 mb-2">Was passiert, wenn ich meinen Betrieb aufgebe?</h3>
+                    <p className="text-slate-600">Der Vertrag ist an den Standort gebunden und auf Rechtsnachfolger übertragbar. Sollte kein Nachfolger vorhanden sein, wird die Anlage einfach durch uns zurückgebaut.</p>
+                  </div>
+                  <ChevronDown className={`w-5 h-5 text-green-600 flex-shrink-0 ml-4 transition-transform ${expandedFaq === 4 ? 'rotate-180' : ''}`} />
+                </button>
+                {expandedFaq === 4 && (
+                  <div className="px-6 pb-6 bg-green-50 border-t-2 border-green-200">
+                    <p className="text-slate-700">Gemäß § 18 und § 19 des Nutzungsvertrages ist das Modell sehr flexibel. Ein neuer Pächter kann den Vertrag einfach übernehmen und profitiert sofort weiter von den gesenkten Betriebskosten. Da die Anlage nicht fest verbaut ist, bleibt das unternehmerische Risiko der Refinanzierung beim Aufsteller, nicht beim Gastronomen.</p>
+                  </div>
+                )}
+              </Card>
+            </div>
+
+            {/* CTA Buttons */}
+            <div className="flex gap-4 justify-center pt-8">
+              <Button 
+                onClick={() => setCurrentScreen("calculator")}
+                className="bg-green-600 hover:bg-green-700 text-white px-8 py-6 text-lg rounded-lg shadow-lg"
+              >
+                Jetzt Ihre Einsparung berechnen <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+              <Button 
+                onClick={() => setCurrentScreen("video")}
+                variant="outline"
+                className="px-8 py-6 text-lg rounded-lg"
+              >
+                ← Zurück
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* INFO SCREEN */}
       {currentScreen === "info" && (
         <div className="min-h-screen px-4 py-12">
