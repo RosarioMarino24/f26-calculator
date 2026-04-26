@@ -8,6 +8,7 @@ import { ArrowRight, AlertCircle, CheckCircle2, TrendingUp, Shield, Zap, X, Chev
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { Document, Packer, Paragraph, TextRun } from "docx";
 import { saveAs } from "file-saver";
+import { calculateSavings, validateSavingsInput } from "@/lib/savingsCalculator";
 
 /**
  * F26 EnergyControl - VERKAUFS-PLATTFORM (Premium Edition mit maximalem Spannungsbogen)
@@ -59,6 +60,11 @@ export default function Home() {
   
   // Counter Animation
   const [displayedErsparnis, setDisplayedErsparnis] = useState(0);
+  
+  // Individueller Einsparungsrechner
+  const [calculatorLoading, setCalculatorLoading] = useState(false);
+  const [calculatorResults, setCalculatorResults] = useState<any>(null);
+  const [calculatorError, setCalculatorError] = useState<string | null>(null);
 
   // Berechnungen basierend auf Input-Modus
   const berechnetStromrechnung = inputMode === "schnell" 
@@ -771,23 +777,81 @@ export default function Home() {
               </div>
             </Card>
 
+            {/* Berechnen Button */}
+            <div className="flex gap-4 justify-center">
+              <Button 
+                onClick={() => {
+                  const error = validateSavingsInput(berechnetStromrechnung, checklisteAntworten);
+                  if (error) {
+                    setCalculatorError(error);
+                    return;
+                  }
+                  
+                  setCalculatorError(null);
+                  setCalculatorLoading(true);
+                  
+                  // Simuliere Berechnung (2-3 Sekunden)
+                  setTimeout(() => {
+                    const results = calculateSavings(checklisteAntworten, berechnetStromrechnung);
+                    setCalculatorResults(results);
+                    setCalculatorLoading(false);
+                  }, 2500);
+                }}
+                className="bg-green-600 hover:bg-green-700 text-white px-12 py-6 text-lg rounded-lg shadow-lg"
+                disabled={calculatorLoading}
+              >
+                {calculatorLoading ? "Berechne Ihre Einsparung..." : "Berechnen"}
+              </Button>
+            </div>
+            
+            {/* Fehler-Anzeige */}
+            {calculatorError && (
+              <Card className="bg-red-50 border-2 border-red-300 p-6">
+                <div className="flex items-center gap-3">
+                  <AlertCircle className="w-6 h-6 text-red-600" />
+                  <p className="text-red-700 font-semibold">{calculatorError}</p>
+                </div>
+              </Card>
+            )}
+            
+            {/* Loading Animation */}
+            {calculatorLoading && (
+              <Card className="bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-blue-300 p-8 text-center">
+                <div className="flex flex-col items-center gap-4">
+                  <Sparkles className="w-8 h-8 text-blue-600 animate-spin" />
+                  <p className="text-lg font-semibold text-slate-900">Analysiere Ihre Stromqualität...</p>
+                  <p className="text-sm text-slate-600">Berechne optimales Einsparungspotenzial basierend auf Ihren Geräten</p>
+                </div>
+              </Card>
+            )}
+            
             {/* Ergebnisse */}
-            <Card className="bg-gradient-to-r from-green-600 to-emerald-600 text-white p-8">
-              <div className="grid grid-cols-3 gap-8 text-center">
-                <div>
-                  <p className="text-green-100 mb-2">Monatliche Ersparnis</p>
-                  <p className="text-4xl font-bold">€{monatlicheErsparnis}</p>
-                </div>
-                <div>
-                  <p className="text-green-100 mb-2">Jährliche Ersparnis</p>
-                  <p className="text-4xl font-bold">€{jaehrlicheErsparnis}</p>
-                </div>
-                <div>
-                  <p className="text-green-100 mb-2">Einsparungsquote</p>
-                  <p className="text-4xl font-bold">{berechnetesEinsparungspotenzial}%</p>
-                </div>
-              </div>
-            </Card>
+            {calculatorResults && !calculatorLoading && (
+              <>
+                <Card className="bg-gradient-to-r from-green-600 to-emerald-600 text-white p-8">
+                  <div className="grid grid-cols-3 gap-8 text-center">
+                    <div>
+                      <p className="text-green-100 mb-2">Monatliche Ersparnis</p>
+                      <p className="text-4xl font-bold">€{calculatorResults.monthly}</p>
+                    </div>
+                    <div>
+                      <p className="text-green-100 mb-2">Jährliche Ersparnis</p>
+                      <p className="text-4xl font-bold">€{calculatorResults.yearly}</p>
+                    </div>
+                    <div>
+                      <p className="text-green-100 mb-2">Einsparungsquote</p>
+                      <p className="text-4xl font-bold">{calculatorResults.percent}%</p>
+                    </div>
+                  </div>
+                </Card>
+                
+                {/* Personalisierte Beschreibung */}
+                <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 p-8">
+                  <h3 className="text-2xl font-bold text-slate-900 mb-4">Ihr individuelles Einsparungspotenzial</h3>
+                  <p className="text-lg text-slate-700 leading-relaxed">{calculatorResults.description}</p>
+                </Card>
+              </>
+            )}
 
             {/* Visualisierungen */}
             <Card className="p-8">
