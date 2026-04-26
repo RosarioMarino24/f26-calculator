@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowRight, AlertCircle, CheckCircle2, TrendingUp, Shield, Zap, X, ChevronDown, Users, Lightbulb, Clock, Droplet, Wind, Gauge, Sparkles, Award, Rocket, Heart } from "lucide-react";
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from "recharts";
 import { Document, Packer, Paragraph, TextRun } from "docx";
 import { saveAs } from "file-saver";
 import { calculateSavings, validateSavingsInput } from "@/lib/savingsCalculator";
@@ -867,26 +867,22 @@ export default function Home() {
                   onMouseDown={(e) => setTouchStart(e.clientX)}
                   onMouseUp={(e) => setTouchEnd(e.clientX)}
                 >
-                  {/* Balken-Vergleich Diagramm */}
+                  {/* Radar-Diagramm mit Rot (Vorher) und Grün (Neu) */}
                   {swipeIndex === 0 && (
-                    <div className="transition-opacity duration-300">
+                    <div className="transition-opacity duration-300 flex flex-col items-center">
                       <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={[{
-                          name: 'Vergleich',
-                          'Ohne F26': calculatorResults.yearly / 1000,
-                          'Mit F26': (calculatorResults.yearly / 1000) * (1 - calculatorResults.percent / 100),
-                        }]}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                          <XAxis dataKey="name" />
-                          <YAxis label={{ value: 'Jährliche Kosten (€1000)', angle: -90, position: 'insideLeft' }} />
-                          <Tooltip 
-                            formatter={(value: any) => `€${(value * 1000).toFixed(0)}`}
-                            labelFormatter={() => 'Jahreskosten'}
-                          />
+                        <RadarChart data={[
+                          { name: 'Einsparung', vorher: 20, neu: Math.min(calculatorResults.percent * 4.3, 100) },
+                          { name: 'Haltbarkeit', vorher: 50, neu: 95 },
+                          { name: 'CO2-Ersparnis', vorher: 30, neu: Math.min(calculatorResults.percent * 3.7, 100) },
+                        ]}>
+                          <PolarGrid stroke="#e5e7eb" />
+                          <PolarAngleAxis dataKey="name" stroke="#64748b" tick={{ fontSize: 12 }} />
+                          <PolarRadiusAxis angle={90} domain={[0, 100]} stroke="#cbd5e1" />
+                          <Radar name="Vorher (ohne F26)" dataKey="vorher" stroke="#EF4444" fill="#EF4444" fillOpacity={0.3} />
+                          <Radar name="Neu (mit F26)" dataKey="neu" stroke="#10B981" fill="#10B981" fillOpacity={0.6} />
                           <Legend />
-                          <Bar dataKey="Ohne F26" fill="#EF4444" radius={[8, 8, 0, 0]} />
-                          <Bar dataKey="Mit F26" fill="#10B981" radius={[8, 8, 0, 0]} />
-                        </BarChart>
+                        </RadarChart>
                       </ResponsiveContainer>
                       <p className="text-center text-slate-600 mt-4 text-sm">← Swipe nach rechts für Zusammenfassung →</p>
                     </div>
