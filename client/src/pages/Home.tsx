@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowRight, AlertCircle, CheckCircle2, TrendingUp, Shield, Zap, X, ChevronDown, Users, Lightbulb, Clock, Droplet, Wind, Gauge, Sparkles, Award, Rocket, Heart } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { Document, Packer, Paragraph, TextRun } from "docx";
 import { saveAs } from "file-saver";
 import { calculateSavings, validateSavingsInput } from "@/lib/savingsCalculator";
@@ -65,6 +65,9 @@ export default function Home() {
   const [calculatorLoading, setCalculatorLoading] = useState(false);
   const [calculatorResults, setCalculatorResults] = useState<any>(null);
   const [calculatorError, setCalculatorError] = useState<string | null>(null);
+  const [swipeIndex, setSwipeIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
 
   // Berechnungen basierend auf Input-Modus
   const berechnetStromrechnung = inputMode === "schnell" 
@@ -853,21 +856,85 @@ export default function Home() {
               </>
             )}
 
-            {/* Visualisierungen */}
-            <Card className="p-8">
-              <h3 className="text-2xl font-bold text-slate-900 mb-6">Ihre Einsparung im Jahresverlauf</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={monthlyData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="ohne" fill="#EF4444" name="Ohne F26" />
-                  <Bar dataKey="mit" fill="#10B981" name="Mit F26" />
-                </BarChart>
-              </ResponsiveContainer>
-            </Card>
+            {/* Swipe-Visualisierungen */}
+            {calculatorResults && !calculatorLoading && (
+              <Card className="p-8">
+                <h3 className="text-2xl font-bold text-slate-900 mb-6">Ihre Einsparung im Jahresverlauf</h3>
+                <div 
+                  className="relative overflow-hidden"
+                  onTouchStart={(e) => setTouchStart(e.targetTouches[0].clientX)}
+                  onTouchEnd={(e) => setTouchEnd(e.changedTouches[0].clientX)}
+                  onMouseDown={(e) => setTouchStart(e.clientX)}
+                  onMouseUp={(e) => setTouchEnd(e.clientX)}
+                >
+                  {/* Linien-Diagramm (OHNE Zahlen/Achsen) */}
+                  {swipeIndex === 0 && (
+                    <div className="transition-opacity duration-300">
+                      <ResponsiveContainer width="100%" height={300}>
+                        <LineChart data={monthlyData}>
+                          <Line 
+                            type="monotone" 
+                            dataKey="ohne" 
+                            stroke="#EF4444" 
+                            strokeWidth={3}
+                            dot={false}
+                            isAnimationActive={true}
+                          />
+                          <Line 
+                            type="monotone" 
+                            dataKey="mit" 
+                            stroke="#10B981" 
+                            strokeWidth={3}
+                            dot={false}
+                            isAnimationActive={true}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                      <p className="text-center text-slate-600 mt-4 text-sm">← Swipe nach rechts für Zahlen →</p>
+                    </div>
+                  )}
+                  
+                  {/* Zahlen-Tabelle (Nach Swipe) */}
+                  {swipeIndex === 1 && (
+                    <div className="transition-opacity duration-300">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b-2 border-slate-300">
+                              <th className="text-left py-2 px-2 font-bold">Monat</th>
+                              <th className="text-right py-2 px-2 font-bold text-red-600">Ohne F26</th>
+                              <th className="text-right py-2 px-2 font-bold text-green-600">Mit F26</th>
+                              <th className="text-right py-2 px-2 font-bold text-blue-600">Ersparnis</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {monthlyData.map((row, idx) => (
+                              <tr key={idx} className="border-b border-slate-200 hover:bg-slate-50">
+                                <td className="py-2 px-2">{row.month}</td>
+                                <td className="text-right py-2 px-2 text-red-600">€{row.ohne}</td>
+                                <td className="text-right py-2 px-2 text-green-600">€{row.mit}</td>
+                                <td className="text-right py-2 px-2 font-bold text-blue-600">€{row.ohne - row.mit}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                      <p className="text-center text-slate-600 mt-4 text-sm">← Swipe nach links für Diagramm →</p>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Swipe-Logik */}
+                {touchStart && touchEnd && (() => {
+                  if (touchStart - touchEnd > 50 && swipeIndex === 0) {
+                    setTimeout(() => setSwipeIndex(1), 0);
+                  } else if (touchEnd - touchStart > 50 && swipeIndex === 1) {
+                    setTimeout(() => setSwipeIndex(0), 0);
+                  }
+                  return null;
+                })()}
+              </Card>
+            )}
 
             {/* Pie Chart */}
             <Card className="p-8">
