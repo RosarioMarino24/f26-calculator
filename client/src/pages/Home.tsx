@@ -199,14 +199,31 @@ export default function Home() {
   ];
 
   // Canvas-Unterschrift
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!signatureCanvasRef.current) return;
-    setIsDrawing(true);
+  const getCoordinates = (e: any) => {
+    if (!signatureCanvasRef.current) return { x: 0, y: 0 };
     const canvas = signatureCanvasRef.current;
     const rect = canvas.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
-    const x = (e.clientX - rect.left) * dpr;
-    const y = (e.clientY - rect.top) * dpr;
+    
+    let clientX = e.clientX;
+    let clientY = e.clientY;
+    
+    if (e.touches && e.touches.length > 0) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    }
+    
+    return {
+      x: (clientX - rect.left) * dpr,
+      y: (clientY - rect.top) * dpr
+    };
+  };
+
+  const startDrawing = (e: any) => {
+    if (!signatureCanvasRef.current) return;
+    setIsDrawing(true);
+    const canvas = signatureCanvasRef.current;
+    const { x, y } = getCoordinates(e);
     const ctx = canvas.getContext("2d");
     if (ctx) {
       ctx.beginPath();
@@ -214,14 +231,13 @@ export default function Home() {
     }
   };
 
-  const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const draw = (e: any) => {
     if (!isDrawing || !signatureCanvasRef.current) return;
+    e.preventDefault();
     const canvas = signatureCanvasRef.current;
-    const rect = canvas.getBoundingClientRect();
-    const dpr = window.devicePixelRatio || 1;
-    const x = (e.clientX - rect.left) * dpr;
-    const y = (e.clientY - rect.top) * dpr;
+    const { x, y } = getCoordinates(e);
     const ctx = canvas.getContext("2d");
+    const dpr = window.devicePixelRatio || 1;
     if (ctx) {
       ctx.lineWidth = 2 * dpr;
       ctx.lineCap = "round";
@@ -1005,8 +1021,8 @@ export default function Home() {
 
             {/* Unterschrift Modal */}
             {showVertragModal && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto p-8">
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+                <Card className="max-w-3xl w-full max-h-[95vh] overflow-y-auto p-8 my-8">
                   <div className="flex items-center justify-between mb-6">
                     <div>
                       <h4 className="text-2xl font-bold text-slate-900">Vertrag & Unterschrift</h4>
@@ -1027,7 +1043,7 @@ export default function Home() {
                   </div>
 
                   {/* Vertrag Preview */}
-                  <div className="bg-slate-50 p-6 rounded-lg mb-6 space-y-4 text-sm max-h-96 overflow-y-auto">
+                  <div className="bg-slate-50 p-6 rounded-lg mb-6 space-y-4 text-sm max-h-64 overflow-y-auto border-2 border-slate-200">
                     <div className="border-b pb-4 mb-4">
                       <p className="font-bold text-slate-900 mb-3">Vertragsbeteiligte:</p>
                       <p><strong>Standortgeber:</strong> {gesetzlicherVertreter || "[Name]"}</p>
@@ -1072,17 +1088,22 @@ export default function Home() {
                   {/* Unterschriftsfeld */}
                   <div className="mb-6">
                     <Label className="text-slate-700 font-semibold">Ihre Unterschrift</Label>
-                    <canvas
-                      ref={signatureCanvasRef}
-                      width={600}
-                      height={150}
-                      onMouseDown={startDrawing}
-                      onMouseMove={draw}
-                      onMouseUp={stopDrawing}
-                      onMouseLeave={stopDrawing}
-                      className="border-2 border-slate-300 rounded-lg mt-2 bg-white cursor-crosshair w-full"
-                      style={{ touchAction: "none" }}
-                    />
+                    <div className="border-2 border-slate-300 rounded-lg mt-2 bg-white overflow-hidden">
+                      <canvas
+                        ref={signatureCanvasRef}
+                        width={700}
+                        height={180}
+                        onMouseDown={startDrawing}
+                        onMouseMove={draw}
+                        onMouseUp={stopDrawing}
+                        onMouseLeave={stopDrawing}
+                        onTouchStart={startDrawing}
+                        onTouchMove={draw}
+                        onTouchEnd={stopDrawing}
+                        className="block w-full cursor-crosshair"
+                        style={{ touchAction: "none", display: "block" }}
+                      />
+                    </div>
                     <Button 
                       onClick={clearSignature}
                       variant="outline"
