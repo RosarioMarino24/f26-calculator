@@ -1106,7 +1106,7 @@ export default function Home() {
                       className="w-5 h-5"
                     />
                     <label htmlFor="vertrag-accept" className="text-slate-700">
-                      Ich akzeptiere die <strong>5-Jahre-Vollgarantie</strong> und die Vertragsbedingungen
+                      Ich akzeptiere die <strong>8 Jahre sorgenfrei Nutzen</strong> und die Vertragsbedingungen
                     </label>
                   </div>
 
