@@ -27,6 +27,7 @@ type ObjectionHandler = {
   title: string;
   icon: React.ReactNode;
   color: string;
+  shortAnswer: string;
   content: React.ReactNode;
 };
 
@@ -334,80 +335,75 @@ export default function Home() {
   const getRelevantObjections = () => {
     if (berechnetStromrechnung > 5000) {
       // Große Stromrechnungen: Vertrauen & Funktionalität wichtig
-      return ["serioes", "funktioniert", "teuer"];
+      return ["paechter", "schaeden", "kostenlos"];
     } else if (berechnetStromrechnung > 2000) {
       // Mittlere Stromrechnungen: Balance
-      return ["teuer", "amortisation", "funktioniert"];
+      return ["kostenlos", "wartung", "schaeden"];
     } else {
       // Kleine Stromrechnungen: ROI wichtig
-      return ["teuer", "amortisation"];
+      return ["kostenlos", "betriebsaufgabe"];
     }
   };
 
-  // Einwand-Handler mit Zahlen
+  // Einwand-Handler mit exakten Texten
   const objectionHandlers: ObjectionHandler[] = [
     {
-      id: "teuer",
-      title: "Zu teuer?",
-      icon: <AlertCircle className="w-6 h-6" />,
-      color: "bg-red-50 border-red-200",
-      content: (
-        <div className="space-y-3">
-          <p className="font-semibold text-gray-900">0€ Anfangsinvestition</p>
-          <p className="text-gray-700">Sie zahlen NICHTS. Wir tragen alle Kosten. Sie sparen sofort ab Tag 1.</p>
-          <p className="text-sm text-green-700 font-semibold">→ Amortisation oft innerhalb von 8-12 Monaten</p>
-        </div>
-      )
-    },
-    {
-      id: "amortisation",
-      title: "Amortisation zu lange?",
-      icon: <TrendingUp className="w-6 h-6" />,
-      color: "bg-blue-50 border-blue-200",
-      content: (
-        <div className="space-y-3">
-          <p className="font-semibold text-gray-900">Tag 1 – Ihre Einsparung beginnt</p>
-          <p className="text-gray-700">Bei €{monatlicheErsparnis}/Monat Einsparung: Amortisation nach {Math.round(12 / (berechnetesEinsparungspotenzial / 20))} Monaten</p>
-          <p className="text-sm text-green-700 font-semibold">→ Danach nur noch Gewinn</p>
-        </div>
-      )
-    },
-    {
-      id: "funktioniert",
-      title: "Funktioniert das wirklich?",
-      icon: <CheckCircle2 className="w-6 h-6" />,
-      color: "bg-green-50 border-green-200",
-      content: (
-        <div className="space-y-3">
-          <p className="font-semibold text-gray-900">98% Kundenzufriedenheit – über 500 Anlagen installiert</p>
-          <p className="text-gray-700">Kostenlose 7-Tage-Netzanalyse nach IEC 61000-4-30 Klasse A. Dann wissen Sie genau, was Sie sparen.</p>
-          <p className="text-sm text-green-700 font-semibold">→ Null Risiko, 100% Transparenz</p>
-        </div>
-      )
-    },
-    {
-      id: "kompliziert",
-      title: "Zu kompliziert?",
-      icon: <Lightbulb className="w-6 h-6" />,
-      color: "bg-yellow-50 border-yellow-200",
-      content: (
-        <div className="space-y-3">
-          <p className="font-semibold text-gray-900">Wir kümmern uns um alles</p>
-          <p className="text-gray-700">Planung, Installation, Inbetriebnahme, 24/7 Überwachung – Sie müssen nichts tun.</p>
-          <p className="text-sm text-green-700 font-semibold">→ Inklusive alles</p>
-        </div>
-      )
-    },
-    {
-      id: "serioes",
-      title: "Ist das seriös?",
+      id: "paechter",
+      title: "Ist das als Pächter überhaupt erlaubt?",
       icon: <Shield className="w-6 h-6" />,
       color: "bg-purple-50 border-purple-200",
+      shortAnswer: "Ja! Die Installation der F26 ist eine Maßnahme zur Betriebskostensenkung, die Ihre Bausubstanz unberührt lässt. Da die Anlage mobil ist und parallel geschaltet wird, fällt dies in Ihre Entscheidungshoheit als Pächter.",
       content: (
         <div className="space-y-3">
-          <p className="font-semibold text-gray-900">Zertifiziert & geprüft – 15+ Jahre Erfahrung</p>
-          <p className="text-gray-700">IEC 61000-4-30 Klasse A, VDE-AR-N 4110, EN 50160, Made in Germany, 8 Jahre sorgenfrei Nutzen</p>
-          <p className="text-sm text-green-700 font-semibold">→ Vertrauen Sie auf Qualität</p>
+          <p className="text-gray-700">Gemäß unserem Nutzungs-Vertrag (§ 7) wird die Anlage kein wesentlicher Bestandteil des Gebäudes. Sie bleibt mobiles Eigentum des Aufstellers. Bei einem Umzug oder nach Vertragsende wird das Gerät einfach demontiert und der ursprüngliche Zustand Ihrer Elektroverteilung wiederhergestellt. Sie modernisieren Ihr Netz, ohne den Vermieter finanziell oder baulich zu belasten.</p>
+        </div>
+      )
+    },
+    {
+      id: "schaeden",
+      title: "Schadet das meinen technischen Geräten?",
+      icon: <AlertCircle className="w-6 h-6" />,
+      color: "bg-red-50 border-red-200",
+      shortAnswer: "Ganz im Gegenteil: Die F26 schützt Ihre Hardware! Durch die Reinigung des Stromnetzes von Oberschwingungen und Blindstrom werden Ihre Geräte weniger heiß und leben länger.",
+      content: (
+        <div className="space-y-3">
+          <p className="text-gray-700">Die Anlage ist nach den strengsten deutschen Industrienormen (VDE-AR-N 4110 und EN 50160) zertifiziert. Sie reduziert thermische Verluste in Ihren Leitungen und sorgt für eine stabilere Spannung. Besonders empfindliche Gastronomie-Technik wie Kaffeemaschinen, Kühlsysteme und Computer profitieren von der verbesserten Stromqualität. Eine automatische Bypass-Schaltung garantiert zudem, dass Ihr Betrieb bei einer Wartung niemals ohne Strom dasteht.</p>
+        </div>
+      )
+    },
+    {
+      id: "wartung",
+      title: "Wer kümmert sich um Reparatur und Wartung?",
+      icon: <Lightbulb className="w-6 h-6" />,
+      color: "bg-yellow-50 border-yellow-200",
+      shortAnswer: "Sie genießen ein Rundum-sorglos-Paket. Wir übernehmen die komplette Wartung, das 24/7-Monitoring und bieten eine 8 Jahre sorgenfrei Nutzen – für Sie entstehen keinerlei Kosten.",
+      content: (
+        <div className="space-y-3">
+          <p className="text-gray-700">Unsere Systeme werden in Deutschland gefertigt und sind per Fernüberwachung rund um die Uhr mit unserer Zentrale verbunden. Sollte ein Bauteil optimiert werden müssen, erledigen wir das oft, bevor Sie es merken. Nach zwei Jahren erfolgt zudem ein kostenloser System-Check-up. Sie stellen lediglich den Platz zur Verfügung; das technische Risiko tragen zu 100 % wir.</p>
+        </div>
+      )
+    },
+    {
+      id: "kostenlos",
+      title: "Warum ist das wirklich kostenlos? Wo ist der Haken?",
+      icon: <TrendingUp className="w-6 h-6" />,
+      color: "bg-blue-50 border-blue-200",
+      shortAnswer: "Es gibt keinen Haken, nur einen fairen Tausch: Sie erhalten die volle Stromkostenersparnis (ca. 15-30 %), während wir die durch die Einsparung entstehenden CO₂-Zertifikate wirtschaftlich verwerten.",
+      content: (
+        <div className="space-y-3">
+          <p className="text-gray-700">Die F26 senkt Ihren CO₂-Fußabdruck messbar. Diese Umweltwerte (Zertifikate) haben an der Börse einen Wert. Da die Vermarktung dieser Zertifikate für Einzelbetriebe zu komplex ist, übernehmen wir diesen Prozess komplett. Aus diesen Erlösen finanzieren wir die Hardware, die Montage und den Service. Sie sparen echtes Geld auf Ihrer Stromrechnung, ohne selbst investieren zu müssen.</p>
+        </div>
+      )
+    },
+    {
+      id: "betriebsaufgabe",
+      title: "Was passiert, wenn ich meinen Betrieb aufgebe?",
+      icon: <CheckCircle2 className="w-6 h-6" />,
+      color: "bg-green-50 border-green-200",
+      shortAnswer: "Der Vertrag ist an den Standort gebunden und auf Rechtsnachfolger übertragbar. Sollte kein Nachfolger vorhanden sein, wird die Anlage einfach durch uns zurückgebaut.",
+      content: (
+        <div className="space-y-3">
+          <p className="text-gray-700">Gemäß § 18 und § 19 des Nutzungsvertrages ist das Modell sehr flexibel. Ein neuer Pächter kann den Vertrag einfach übernehmen und profitiert sofort weiter von den gesenkten Betriebskosten. Da die Anlage nicht fest verbaut ist, bleibt das unternehmerische Risiko der Refinanzierung beim Aufsteller, nicht beim Gastronomen.</p>
         </div>
       )
     },
